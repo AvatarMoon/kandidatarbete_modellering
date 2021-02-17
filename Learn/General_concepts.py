@@ -36,6 +36,7 @@ elif a != 1 or b != 1:
     print("Case 2")
 else:
     print("Case 3")
+
 # Print = disp (or fprintf) in Matlab
 for char in a_string:
     print(char)
