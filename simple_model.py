@@ -13,7 +13,7 @@ def model_normal(t,C):
     b2 = 0.1262     # /min, insulin dissaperance rate
     b3 = 0.00005    # (pM*min)^-1
     b4 = 0.4543     # pM/mM * min
-    b27 = .05    # /min
+    b27 = .05       # /min
     G0 = 200        # mmol
 
     # Glucose in muscle

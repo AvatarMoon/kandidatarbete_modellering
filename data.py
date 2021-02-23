@@ -1,7 +1,13 @@
-# Göra om data till en matris
-import numpy as np 
 import scipy.io
-mat_274 = scipy.io.loadmat('expdata_GLU_time', mdict=None, appendmat=True)
+import numpy as np
+import os
 
-data = np.array(mat_274)
-print(data)
+# Skapar en väg till datand
+data_paths = os.listdir('data_glucose') 
+
+for x in data_paths:
+    
+    data = scipy.io.loadmat('data_glucose/' + x)
+    data = data[x[0:-4]]
+
+    concentration = data[0]['conc']
