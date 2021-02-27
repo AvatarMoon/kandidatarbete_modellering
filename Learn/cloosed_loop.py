@@ -11,9 +11,11 @@ def ode_closed_loop(t,x,b)
     # Moste of the regular parameters
     b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b18, b19 b21, b22, b23, b25, b27 = b 
     S, H, L, G, C, I, W, E, M, A, Y, Q = X
+
     
     #Stomach glucose [1]
     dS = b9*H-b8*S
+    
     
     # Intestine glucose [2]
     dL = b8*S-b10*L
@@ -55,6 +57,17 @@ def ode_closed_loop(t,x,b)
     # Linking the whole body model with the cellular one [14]
     dGtA = - q1*GtA + q2*(G – Gb)
 
+    #Ranges 
+    range_G = [4.5, 11] # mM
+    range_I = [38, 400] #pM
+    range_W = [5, 50]
+    range_E = [28.68, 47.04]
+    range_C = [0, 8]
+    range_M = [2, 13]
+    range_A = [30, 120 ]
+    range_Y = [0, 0.6]
+    range_Q = [8, 1146]
+    # range H, S, L = none
 
 
 
