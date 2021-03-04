@@ -1,0 +1,117 @@
+********** MODEL NAME
+Sedaghat
+
+********** MODEL NOTES
+
+
+********** MODEL STATES
+d/dt(x2) = k_minus1*x3+k_minus3*PTP*x5+k_minus4*x6-k1*ins*1e3*x2-k4*x2         
+d/dt(x3) = k1*ins*1e3*x2-k_minus1*x3-k3*x3                                     
+d/dt(x4) = k2*ins*1e3*x5+k_minus4b*x7-k_minus2*x4-k4b*x4                       
+d/dt(x5) = k3*x3+k_minus2*x4+k_minus4b*x8-k2*ins*1e3*x5-k_minus3*PTP*x5-k4b*x5 
+d/dt(x6) = k5*1e-12+k6*PTP*(x7+x8)+k4*x2-k_minus5*1e-18*x6-k_minus4*x6                
+d/dt(x7) = k4b*x4-k_minus4b*x7-k6*PTP*x7                                  
+d/dt(x8) = k4b*x5-k_minus4b*x8-k6*PTP*x8                                  
+d/dt(x9) = k_minus7*PTP*x10-k7*x9*(x4+x5)/IRp                             
+d/dt(x10) = k7*x9*(x4+x5)/IRp +k_minus8*x12-(k_minus7*PTP+k8*x11)*x10      
+d/dt(x11) = k_minus8*x12-k8*x10*x11                                       
+d/dt(x12) = k8*x10*x11-k_minus8*x12                                       
+d/dt(x13) = (k9*x12+k9_basal)*x14+k10*x15-(k_minus9*PTEN+k_minus10*SHIP)*x13             
+d/dt(x14) = k_minus9*PTEN*x13-(k9*x12+k9_basal)*x14                                      
+d/dt(x15) = k_minus10*SHIP*x13-k10*x15                                    
+d/dt(x16) = k_minus11*x17-k11*(x13-0.31)*x16                                         
+d/dt(x17) = k11*(x13-0.31)*x16-k_minus11*x17                                         
+d/dt(x18) = k_minus12*x19-k12*(x13-0.31)*x18                                         
+d/dt(x19) = k12*(x13-0.31)*x18-k_minus12*x19                                         
+d/dt(x20) = k_minus13*x21+k14-(k13+k13b*effect)*x20-k_minus14*x20                
+d/dt(x21) = -k_minus13*x21+(k13+k13b*effect)*x20                                  
+                                                                          
+x2(0) = 9e-01                                                            
+x3(0) = 0                                                                 
+x4(0) = 0                                                                 
+x5(0) = 0                                                                 
+x6(0) = 1e-01                                                            
+x7(0) = 0                                                                 
+x8(0) = 0                                                                 
+x9(0) = 1                                                             
+x10(0) = 0                                                           
+x11(0) = 1e-01                                                           
+x12(0) = 0                                                                
+x13(0) = 0.31                                                             
+x14(0) = 99.400000000000006                                               
+x15(0) = 0.28999999999999998                                              
+x16(0) = 100                                                              
+x17(0) = 0                                                                
+x18(0) = 100                                                              
+x19(0) = 0                                                                
+x20(0) = 96                                                               
+x21(0) = 4                                                                
+
+********** MODEL PARAMETERS
+ins = 0                                                        
+glucose = 17                                                   
+k_glut4 = 163245                                
+k_glut1 = 0.222945                                
+KmG1 = 25.3525                                                      
+KmG4 = 300
+KmGLUT = 1e+006
+k1 = 6e-8
+k2 = 6e-8
+k_minus1 = 0.20000000000000001                                            
+k_minus2 = 20                                                   
+k_minus3 = 0.2
+k3 = 2500                                                                 
+k_minus4 = 0.0030000000000000001                                          
+k4 = 0.00033
+k4b = 0.0020999999999999999                                               
+k_minus4b = 0.00021000000000000001
+k_minus5 = 1.67
+k5 = 16.7                                                      
+IRp = 8.97e-01                                             
+k6 = 0.46100000000000002                                                  
+k7 = 4.1600000000000001                                                   
+k_minus7 = 1.4 
+k_minus8 = 10                                                             
+k8 = 0.706
+k9_stimulated = 1.3899999999999999                                        
+k_minus9 = 42.1                                           
+k9_basal = 0.13
+k_minus10 = 2.77
+k10 = 2.96                                                                                                       
+k_minus11 = 6.9
+k_minus12 = 6.9                                                          
+k_minus13 = 0.16700000000000001                                           
+k13 = 0.007                                                                                                                
+k_minus14 = 0.001155                                                      
+k14 = 0.11
+SHIP = 1                                                                  
+PTEN = 1                                                                  
+PTP = 1                                                                   
+PI3K = 5e-03
+APequil = 9.09
+k9 = 0.0063
+k11 = 0.25
+k12 = 0.25
+k13b = 0.104
+
+********** MODEL VARIABLES
+MeasIR = x4+x5+x7+x8
+MeasIRS = x10+x12
+MeasPKB = x17                                                                
+k9 = (k9_stimulated-k9_basal)*x12/PI3K+k9_basal                           
+k11 = 0.1*6.9*(x13-0.31)/2.79
+k12 = 0.1*6.9*(x13-0.31)/2.79
+effect = (0.2*x17+0.8*x19)/APequil                                        
+k13b = (40/60-4/96)*k_minus13*effect                                      
+
+********** MODEL REACTIONS
+glucoseuptake = k_glut1*glucose/(KmG1+glucose)+k_glut4*x21/(KmGLUT+x21)*glucose/(KmG4+glucose)
+
+********** MODEL FUNCTIONS
+
+
+********** MODEL EVENTS                                                                                            
+
+
+********** MODEL MATLAB FUNCTIONS
+

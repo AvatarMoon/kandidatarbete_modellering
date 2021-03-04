@@ -1,0 +1,94 @@
+********** MODEL NAME
+testmodel
+
+********** MODEL NOTES
+
+
+********** MODEL STATES
+d/dt(IR) = -v1a+v1b+v1r+v1g                                                          
+d/dt(IRins) = v1a-v1b-v1c                                                            
+d/dt(IR_P) = v1c-v1d-v1g                                                             
+d/dt(IRiP) = v1d-v1e                                                                 
+d/dt(IRi) = v1e-v1r                                                                  
+d/dt(IRS) = v2b-v2f                                                                  
+d/dt(IRSiP) = -v2b+v2f                                                               
+d/dt(X) = v3b-v3f                                                                    
+d/dt(X_P) = -v3b+v3f                                                                 
+d/dt(PKB) = v4b-v4f                                                                  
+d/dt(PKB_P) = -v4b+v4f                                                               
+d/dt(GLUT4_C) = v5b-v5f                                                              
+d/dt(GLUT4_M) = -v5b+v5f                                                             
+                                                                                     
+IR(0) = 10                                                                           
+IRins(0) = 0                                                                         
+IR_P(0) = 0                                                                          
+IRiP(0) = 0                                                                          
+IRi(0) = 0                                                                           
+IRS(0) = 10                                                                          
+IRSiP(0) = 0                                                                         
+X(0) = 10                                                                            
+X_P(0) = 0                                                                           
+PKB(0) = 10                                                                          
+PKB_P(0) = 0                                                                         
+GLUT4_C(0) = 10                                                                      
+GLUT4_M(0) = 0
+
+********** MODEL PARAMETERS
+ins = 0                                                                              
+glucose = 17                                                                         
+k1a = 0.034479900000000001                                                           
+k1aBasic = 0.087639800000000004                                                      
+k1b = 33.118299999999998                                                             
+k1c = 0.64065399999999995                                                            
+k1d = 5.1199999999999998e-005                                                        
+k1e = 5.6914100000000003                                                             
+k1f = 995259000                                                                      
+k1g = 2932540                                                                        
+k1r = 3576.48                                                                        
+k21 = 23103600                                                                       
+k22 = 10793.200000000001                                                             
+k2b = 80208400                                                                       
+k3f = 90750.300000000003                                                             
+k3b = 50669.900000000001                                                             
+k4f = 270698000                                                                      
+k4b = 875.83100000000002                                                             
+k5f = 10.5671                                                                        
+k5b = 22.730599999999999                                                             
+k_glut4 = 5.7859499999999997                                                         
+k_glut1 = 0.130634                                                                   
+KmG1 = 1                                                                             
+KmG4 = 7602.4499999999998
+
+********** MODEL VARIABLES
+MeasIR = IR_P+IRiP                                                                   
+MeasIRS = IRSiP                                                                      
+MeasPKB = PKB_P
+
+********** MODEL REACTIONS
+glucoseuptake = k_glut1*glucose/(KmG1+glucose)+k_glut4*GLUT4_M*glucose/(KmG4+glucose)
+glut1 = k_glut1*glucose/(KmG1+glucose)                                               
+glut4 = k_glut4*GLUT4_M*glucose/(KmG4+glucose)                                       
+v1a = k1a*ins*1000*IR+k1aBasic*IR                                                    
+v1b = k1b*IRins                                                                      
+v1c = k1c*IRins                                                                      
+v1d = k1d*IR_P                                                                       
+v1e = IRiP*(k1e+k1f*X_P/(1+X_P))                                                     
+v1g = k1g*IR_P                                                                       
+v1r = k1r*IRi                                                                        
+v2f = k21*(IR_P+k22*IRiP)*IRS                                                        
+v2b = k2b*IRSiP                                                                      
+v3f = k3f*X*IRSiP                                                                    
+v3b = k3b*X_P                                                                        
+v4f = k4f*IRSiP*PKB                                                                  
+v4b = k4b*PKB_P                                                                      
+v5f = k5f*PKB_P*GLUT4_C                                                              
+v5b = k5b*GLUT4_M
+
+********** MODEL FUNCTIONS
+
+
+********** MODEL EVENTS
+
+
+********** MODEL MATLAB FUNCTIONS
+

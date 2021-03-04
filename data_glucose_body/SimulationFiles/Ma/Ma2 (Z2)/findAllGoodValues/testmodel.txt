@@ -1,0 +1,69 @@
+********** MODEL NAME
+testmodel
+
+********** MODEL NOTES
+
+
+********** MODEL STATES
+d/dt(IR) = v1b-v1f                                                                   
+d/dt(IR_P) = -v1b+v1f                                                                
+d/dt(IRS) = v2b-v2f                                                                  
+d/dt(IRS_P) = -v2b+v2f                                                               
+d/dt(PKB) = v4b-v4f                                                                  
+d/dt(PKB_P) = -v4b+v4f                                                               
+d/dt(GLUT4_C) = v5b-v5f                                                              
+d/dt(GLUT4_M) = -v5b+v5f                                                             
+                                                                                     
+IR(0) = 10                                                                           
+IR_P(0) = 0                                                                          
+IRS(0) = 10                                                                          
+IRS_P(0) = 0                                                                         
+PKB(0) = 10                                                                          
+PKB_P(0) = 0                                                                         
+GLUT4_C(0) = 10                                                                      
+GLUT4_M(0) = 0
+
+********** MODEL PARAMETERS
+ins = 0                                                                              
+glucose = 17                                                                         
+k1aBasic = 115256                                                                    
+k1f = 697.27800000000002                                                             
+k1b = 576953                                                                         
+k2f = 154.779                                                                        
+k21f = 10420.799999999999                                                            
+k2b = 3848050                                                                        
+k4f = 260464                                                                         
+k4b = 157643                                                                         
+k5f = 39439.400000000001                                                             
+k5b = 37993.599999999999                                                             
+k_glut4 = 0.99211499999999997                                                        
+k_glut1 = 0.15814800000000001                                                        
+KmG1 = 4.4093299999999997                                                            
+KmG4 = 1455.01
+
+********** MODEL VARIABLES
+MeasIR = IR_P                                                                        
+MeasIRS = IRS_P                                                                      
+MeasPKB = PKB_P
+
+********** MODEL REACTIONS
+glucoseuptake = k_glut1*glucose/(KmG1+glucose)+k_glut4*GLUT4_M*glucose/(KmG4+glucose)
+glut1 = k_glut1*glucose/(KmG1+glucose)                                               
+glut4 = k_glut4*GLUT4_M*glucose/(KmG4+glucose)                                       
+v1f = k1f*ins*1000*IR+k1aBasic*IR                                                    
+v1b = k1b*IR_P                                                                       
+v2f = (k2f+k21f*PKB_P)*IR_P*IRS                                                      
+v2b = k2b*IRS_P                                                                      
+v4f = k4f*IRS_P*PKB                                                                  
+v4b = k4b*PKB_P                                                                      
+v5f = k5f*PKB_P*GLUT4_C                                                              
+v5b = k5b*GLUT4_M
+
+********** MODEL FUNCTIONS
+
+
+********** MODEL EVENTS
+
+
+********** MODEL MATLAB FUNCTIONS
+
