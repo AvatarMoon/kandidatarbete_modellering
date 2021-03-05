@@ -91,7 +91,8 @@ print("True values")
 print([1.0, 2.0])
 print("Value of cost-function")
 print(res.fun)
-<<<<<<< Updated upstream
-=======
+
+y_model1 = model1(t_vec, [4,5], [2,3])
+plt.plot(t_vec, y_model1)
+plt.title("Simulated model1")
 plt.show()
->>>>>>> Stashed changes
