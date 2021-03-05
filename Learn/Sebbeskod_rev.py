@@ -54,6 +54,7 @@ np.random.seed(123)
 y_obs = simulate_model1(t_vec, 0.5)
 
 # Plotting observed data at time-points 0.1, ..., 2.0 (we have 50 data-points)
+plot1 = plt.figure(1)
 plt.plot(t_vec, y_obs)
 plt.title("Simulated data")
 plt.show()
@@ -63,7 +64,7 @@ plt.show()
     observed data as input. 
 """
 
-def cost_function(k, y_obs):
+def cost_function(k, y_obs1):
     
     # Model parameters  
     x0 = [10.0, 20.0]   
@@ -92,3 +93,8 @@ print([1.0, 2.0])
 print("Value of cost-function")
 print(res.fun)
 
+model = model1(t_vec, sol, res.x)
+plot2 = plt.figure(2)
+plt.plot(t_vec, model)
+plt.title("Simulated model1")
+plt.show()
