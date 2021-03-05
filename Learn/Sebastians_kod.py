@@ -63,7 +63,7 @@ plt.show()
     observed data as input. 
 """
 
-def cost_function(k, y_obs1):
+def cost_function(k, y_obs):
     
     # Model parameters  
     x0 = [10.0, 20.0]   
