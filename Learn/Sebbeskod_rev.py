@@ -4,6 +4,7 @@ from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 
 
+
 """                                                                                                                                                                      
      ODE-model of the reaction network:                                                                                                                                   
      x1 -> x2
@@ -51,10 +52,9 @@ def simulate_model1(t_vec, sigma):
 t_vec = np.linspace(0.1, 2.0, num=50)
 # Set seed to reproduce
 np.random.seed(123)
-y_obs = simulate_model1(t_vec, 0.5)
+y_obs = simulate_model1(t_vec, 0.5) # dvs x2_obs
 
 # Plotting observed data at time-points 0.1, ..., 2.0 (we have 50 data-points)
-plot1 = plt.figure(1)
 plt.plot(t_vec, y_obs)
 plt.title("Simulated data")
 plt.show()
@@ -74,6 +74,7 @@ def cost_function(k, y_obs1):
     sol = integrate.solve_ivp(model1, time_span, x0, method="LSODA", args=(k, ), t_eval=t_vec)
     
     # Step 2: Extract x2 (simulated y-vec)
+    global y_model
     y_model = sol.y[1] 
 
     # Step 3: Calculate cost-function 
@@ -83,7 +84,8 @@ def cost_function(k, y_obs1):
 
 # Note, a numerical optmizer require a starting guess, here I use the start-guess (10.0, 10.0)
 # (quite a bad start-guess)
-res = minimize(cost_function, [20.0, 20.0], method='Powell', args = (y_obs, ))
+
+res = minimize(cost_function, [10.0, 20.0], method='Powell', args = (y_obs, ))
 
 # Print some statistics 
 print("Optimal value found via Powells-method:")
@@ -92,9 +94,10 @@ print("True values")
 print([1.0, 2.0])
 print("Value of cost-function")
 print(res.fun)
+print("y_model value")
+#print(y_model)
 
-model = model1(t_vec, sol, res.x)
-plot2 = plt.figure(2)
-plt.plot(t_vec, model)
+
+"""plt.plot(t_vec, y_model)
 plt.title("Simulated model1")
-plt.show()
+plt.show()"""
