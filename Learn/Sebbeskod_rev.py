@@ -74,7 +74,6 @@ def cost_function(k, y_obs1):
     sol = integrate.solve_ivp(model1, time_span, x0, method="LSODA", args=(k, ), t_eval=t_vec)
     
     # Step 2: Extract x2 (simulated y-vec)
-    global y_model
     y_model = sol.y[1] 
 
     # Step 3: Calculate cost-function 
