@@ -56,7 +56,7 @@ y_obs = simulate_model1(t_vec, 0.5)
 # Plotting observed data at time-points 0.1, ..., 2.0 (we have 50 data-points)
 plt.plot(t_vec, y_obs)
 plt.title("Simulated data")
-#plt.show()
+plt.show()
 
 """
     Cost-function for model1 which takes the model-parameters (k1, k2) and 

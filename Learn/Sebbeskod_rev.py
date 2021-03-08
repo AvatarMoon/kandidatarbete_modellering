@@ -44,7 +44,7 @@ def simulate_model1(t_vec, sigma):
     
     # Extract x2 and add measurment noise 
     x2_obs = sol.y[1] + np.random.normal(loc=0.0, scale=sigma, size=n_data_points)
-    
+    # x1_obs = sol.y[0] + np.random.normal(loc=0.0, scale=sigma, size=n_data_points)
     return x2_obs
 
 
@@ -54,10 +54,6 @@ t_vec = np.linspace(0.1, 2.0, num=50)
 np.random.seed(123)
 y_obs = simulate_model1(t_vec, 0.5) # dvs x2_obs
 
-# Plotting observed data at time-points 0.1, ..., 2.0 (we have 50 data-points)
-plt.plot(t_vec, y_obs)
-plt.title("Simulated data")
-plt.show()
 
 """
     Cost-function for model1 which takes the model-parameters (k1, k2) and 
@@ -74,6 +70,7 @@ def cost_function(k, y_obs1):
     sol = integrate.solve_ivp(model1, time_span, x0, method="LSODA", args=(k, ), t_eval=t_vec)
     
     # Step 2: Extract x2 (simulated y-vec)
+    global y_model  # global gör att variabeln finns utnför funktionen 
     y_model = sol.y[1] 
 
     # Step 3: Calculate cost-function 
@@ -93,10 +90,10 @@ print("True values")
 print([1.0, 2.0])
 print("Value of cost-function")
 print(res.fun)
-print("y_model value")
-#print(y_model)
 
 
-"""plt.plot(t_vec, y_model)
-plt.title("Simulated model1")
-plt.show()"""
+# Plotting observed data at time-points 0.1, ..., 2.0 (we have 50 data-points)
+plt.plot(t_vec, y_obs)
+plt.title("Simulated data and model")
+plt.plot(t_vec, y_model)
+plt.show()
