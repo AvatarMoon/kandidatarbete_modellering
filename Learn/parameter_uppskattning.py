@@ -16,14 +16,20 @@ import matplotlib.pyplot as plt
     Returns:                                                                                                                                                             
          current value of the derivitative                                                                                                                                
 """
-def model1(t, x, b):
-    b8, b9, b10, b11 = b
-    #H = 200 # tog H(0) så länge
-    dx0 = b9*x[2]-b8*x[0]
-    dx1 = b8*x[0]-b10*x[1]
-    dx2 = b9*x[2]+b10*x[1]
-    dx3 = b8*x[0]+b11*x[2]
-    # sätta in S som x[0]
+    # Startvärden
+S0 = 4 #mmol
+L0 = 14 #mmol
+G0 = 5 #mmol
+I0 = 60 #pM
+
+def model1(t, x, b): 
+    b1, b3, b5, b6, b7, b8, b9, b10, f, v = b
+    H = 200 # tog H(0) så länge
+    C = 20
+    dx0 = b9*H-b8*x[0]  #S
+    dx1 = b8*x[0]-b10*x[1] #L
+    dx2 = f*b10*x[1]/v + f*b5*C/v - b1*x[2]-b3*x[3]*x[2] #G
+    dx3 = b6*x[1] - b7*x[3] + x[0] # I
    
     return [dx0, dx1, dx2, dx3]
 
@@ -34,10 +40,10 @@ def model1(t, x, b):
 """
 def simulate_model1(t_vec, sigma):
      
-    # Model parameters  
-    x0 = [0.022, 0.022, 0.022, 0.22]   #[S, L, H] initial
+    # Model parameters 
+    x0 = [S0, L0, G0, I0]   # initial
     time_span = [t_vec[0], t_vec[-1]] # 0 är första och -1 är sista
-    rates = [4, 14, 200, 20] # vad innebär det här?
+    rates = [0.0059, 0.00005, 0.185, 0.0102, 0.03, 0.022, 0.022, 0.022, 0.9, 15] # vad innebär det här?
     n_data_points = len(t_vec)
     
     # Note that by using t_eval I get the solution at the time-points in t_vec (I don't have to 
@@ -51,7 +57,7 @@ def simulate_model1(t_vec, sigma):
  
 
 # We simulate data at 144 data-points from 1 to 1440
-t_vec = np.linspace(0.1, 2, num=50) #var 10e minut i ett dygn
+t_vec = np.linspace(0.1, 1440, num=144) #var 10e minut i ett dygn
 # Set seed to reproduce
 np.random.seed(123)
 y_obs = simulate_model1(t_vec, 0.5)
@@ -65,7 +71,7 @@ y_obs = simulate_model1(t_vec, 0.5)
 def cost_function(b, y_obs1):
     
     # Model parameters  
-    x0 = [0.022, 0.022, 0.022, 0.22]   #[S, L, H] initial  
+    x0 = [S0, L0, G0, I0]   # initial concentrations  
     time_span = [t_vec[0], t_vec[-1]]
     
     # Step 1: Solve ODE-system 
@@ -84,7 +90,7 @@ def cost_function(b, y_obs1):
     return squared_sum
 
 # Note, a numerical optmizer require a starting guess, here I use the start-guess (0.022, 0.022, 0.022)
-res = minimize(cost_function, [4, 14, 200, 20], method='Powell', args = (y_obs, )) #lägg in constraints här
+res = minimize(cost_function, [0.0059, 0.00005, 0.185, 0.0102, 0.03, 0.022, 0.022, 0.022, 0.9, 15], method='Powell', args = (y_obs, )) #lägg in constraints här
 
 # Print some statistics 
 print("Optimal value found via Powells-method:")
