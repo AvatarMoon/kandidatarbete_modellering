@@ -130,7 +130,7 @@ x0 = [10, 20, 15, 10, 20, 15, 10, 20, 15, 10, 20, 15, 10]
 sol = integrate.solve_ivp(closed_loop, time_span, x0, method="LSODA", t_eval=t_vec)
 
 # plot model
-ymodel = sol.y[1]
+ymodel = sol.y[3]
 plt.plot(t_vec, ymodel)
 plt.title("Simulated model")
 plt.show()
