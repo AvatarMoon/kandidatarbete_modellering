@@ -122,7 +122,7 @@ def closed_loop(t,x):
     range_Q = [8, 1146]
     # range H, S, L = none """
 
-t_vec = np.linspace(0.1, 2, num=50)
+t_vec = np.linspace(0.1, 50, num=50)
 time_span = [t_vec[0], t_vec[-1]] 
 x0 = [10, 20, 15, 10, 20, 15, 10, 20, 15, 10, 20, 15, 10]
 sol = integrate.solve_ivp(closed_loop, time_span, x0, method="LSODA", t_eval=t_vec)
