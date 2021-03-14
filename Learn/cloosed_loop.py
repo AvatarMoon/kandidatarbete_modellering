@@ -23,9 +23,9 @@ def closed_loop(t,x):
     b12 = 28.66
     b13 = 0.0000095
     b14 = 0.0278
-    b17 = 0.02 # random siffra
-    b18 = 0.35
-    b19 = 0.004
+    # b17 = 0.02 # random siffra
+    # b18 = 0.35
+    # b19 = 0.004
     b21 = 0.00876
     b22 = 0.0021
     b23 = 0.08
@@ -121,19 +121,30 @@ def closed_loop(t,x):
     range_Y = [0, 0.6]
     range_Q = [8, 1146]
     # range H, S, L = none """
-
+ # time span
 t_vec = np.linspace(0.1, 20, num=50)
 time_span = [t_vec[0], t_vec[-1]] 
+# initial conditions
 x0 = [10, 20, 15, 10, 20, 15, 10, 20, 15, 10, 20, 15, 10]
+# solve ODE
 sol = integrate.solve_ivp(closed_loop, time_span, x0, method="LSODA", t_eval=t_vec)
 
+# plot model
 ymodel = sol.y[1]
-
-print(ymodel)
-
 plt.plot(t_vec, ymodel)
 plt.title("Simulated model")
 plt.show()
+"""def ymodel():
+    R = range(13)
+    for i in R:
+        model = sol.y[i]
+        
+    return model
+        
+Modell = ymodel()
+print(Modell)"""
+
+
 
 
 
