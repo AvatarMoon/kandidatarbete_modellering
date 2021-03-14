@@ -78,7 +78,7 @@ def closed_loop(t,x):
     
     # plasma glucagon [6] # 
     # u = np.heaviside(Ge, G)  # lägg till u enligt artikel
-    dE = c0 + (c1/(c2 + I))*(Ge -G)*(Ge - G) - c3*E  
+    dE = c0 + (c1/5)*(Ge -G)*(Ge - G) - c3*E  
     
     # liver glucose [7]
     dC = b23 - b25*I*e - b22*G + b21*E - b5*C
@@ -118,7 +118,7 @@ def closed_loop(t,x):
     range_Q = [8, 1146]
     # range H, S, L = none """
 
-t_vec = np.linspace(0.1, 2, num=50)
+t_vec = np.linspace(0.1, 8, num=50)
 time_span = [t_vec[0], t_vec[-1]] 
 x0 = [10, 20, 15, 10, 20, 15, 10, 20, 15, 10, 20, 15, 10, 20]
 sol = integrate.solve_ivp(closed_loop, time_span, x0, method="LSODA", t_eval=t_vec)
