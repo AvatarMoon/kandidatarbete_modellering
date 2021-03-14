@@ -33,7 +33,7 @@ def closed_loop(t,x):
     f = 0.9
     v = 15
     c = 0.1060
-    s = 0.03
+    #s = 0.03
     c0 = 1.8854
     c1 = 198
     c2 = 94
@@ -59,7 +59,7 @@ def closed_loop(t,x):
     H = 10
     """global b
     b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14,b17, b18, b19, b21, b22, b23, b25, b27 = b """
-    S, H, L, G, C, I, W, E, M, A, Y, Q, H, INSA, GtA = x 
+    S, L, G, C, I, W, E, M, A, Y, Q, H, INSA, GtA = x 
 
     #Stomach glucose [1]
     dS = b9*H-b8*S
@@ -78,7 +78,7 @@ def closed_loop(t,x):
     
     # plasma glucagon [6] # 
     # u = np.heaviside(Ge, G)  # lägg till u enligt artikel
-    dE = c0 + (c1/(c2 + I*e))*(Ge -G)*(Ge - G) - c3*E  
+    dE = c0 + (c1/(c2 + I))*(Ge -G)*(Ge - G) - c3*E  
     
     # liver glucose [7]
     dC = b23 - b25*I*e - b22*G + b21*E - b5*C
@@ -104,24 +104,32 @@ def closed_loop(t,x):
     # Linking the whole body model with the cellular one [14]
     dGtA = - q1*GtA + q2*(G - 2)
 
-    return [dS, dL, dG, dI, dW, dE, dC, dM, dA, dY, dQ, dH, dINSA, dGtA ]
+    return [dS, dL, dG, dI, dW, dE, dC, dM, dA, dY, dQ, dH, dINSA, dGtA]
 
-    """#Ranges 
-    range_G = [4.5, 11] # mM
+    # Ranges 
+    """ range_G = [4.5, 11] # mM
     range_I = [38, 400] #pM
     range_W = [5, 50]
     range_E = [28.68, 47.04]
     range_C = [0, 8]
     range_M = [2, 13]
-    range_A = [30, 120 ]
+    range_A = [30, 120]
     range_Y = [0, 0.6]
     range_Q = [8, 1146]
     # range H, S, L = none """
 
-t = np.linspace(0,50)   
-x0 = [np.linspace(0.1, 10.0, num=14)]
-sol = integrate.solve_ivp(closed_loop, t, x0, method="LSODA")
+t_vec = np.linspace(0.1, 2, num=50)
+time_span = [t_vec[0], t_vec[-1]] 
+x0 = [10, 20, 15, 10, 20, 15, 10, 20, 15, 10, 20, 15, 10, 20]
+sol = integrate.solve_ivp(closed_loop, time_span, x0, method="LSODA", t_eval=t_vec)
 
+ymodel = sol.y[1]
+
+print(ymodel)
+
+plt.plot(t_vec, ymodel)
+plt.title("Simulated model")
+plt.show()
 """def solve(b, ):
     # initial condition
     
