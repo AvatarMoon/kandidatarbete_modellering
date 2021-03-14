@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
     # Colour-blind friendly palette (use nice colors)
 cb_palette = ["#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
 
-def ode_closed_loop(t,x,b):
+def closed_loop(t,x):
     # Moste of the regular parameters
     b1 = 0.0059
     b2 = 0.1262
@@ -41,7 +41,7 @@ def ode_closed_loop(t,x,b):
     Ge = 5
     c3 = 0.0554
     k8 = 0.5275
-    GLUT4 = 50.8472
+    # GLUT4 = 50.8472
     GtA = 135
     GLUT1 = 0.0283
     KmG4 = 146.851
@@ -56,9 +56,10 @@ def ode_closed_loop(t,x,b):
     q1 = 0.0031
     q2 = 0.4054
     # Gb =
-    global b
-    b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14,b17, b18, b19, b21, b22, b23, b25, b27 = b 
-    # S, H, L, G, C, I, W, E, M, A, Y, Q, H, INSA, GtA = x
+    H = 10
+    """global b
+    b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14,b17, b18, b19, b21, b22, b23, b25, b27 = b """
+    S, H, L, G, C, I, W, E, M, A, Y, Q, H, INSA, GtA = x 
 
     #Stomach glucose [1]
     dS = b9*H-b8*S
@@ -117,20 +118,22 @@ def ode_closed_loop(t,x,b):
     range_Q = [8, 1146]
     # range H, S, L = none """
 
-def solve(b, ):
+t = np.linspace(0,50)   
+x0 = [np.linspace(0.1, 10.0, num=14)]
+sol = integrate.solve_ivp(closed_loop, t, x0, method="LSODA")
+
+"""def solve(b, ):
     # initial condition
-    x0 = [np.linspace(0.1, 10.0, num=14)]
+    
     # time points
     t_vec = np.linspace(0.1, 2.0, num=50)
     time_span = [t_vec[0], t_vec[-1]]
     # solve ODE-system
-    sol = integrate.solve_ivp(ode_closed_loop, time_span, x0, method="LSODA", args=( b, ))
+    
 
     y_model = sol.y[1]
 
-    return y_model
+    return y_model """
 
-model = solve(b)   
-print(model)
 
 
