@@ -3,9 +3,12 @@ import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 import math
     
-   
+
     # Colour-blind friendly palette (use nice colors)
 cb_palette = ["#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
+
+# Glucose intake
+H = int(input("Insert glucose intake: "))
 
 def closed_loop(t,x):
     # Moste of the regular parameters
@@ -57,10 +60,12 @@ def closed_loop(t,x):
     q1 = 0.0031
     q2 = 0.4054
     # Gb =
-    H = 10
+
+     
     
     """ b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b17, b18, b19, b21, b22, b23, b25, b27 = b """
     S, L, G, C, I, W, E, M, A, Y, Q, INSA, GtA = x 
+
 
     # Stomach glucose [1]
     dS = b9*H-b8*S
@@ -120,7 +125,7 @@ def closed_loop(t,x):
     range_A = [30, 120]
     range_Y = [0, 0.6]
     range_Q = [8, 1146]
-    # range H, S, L = none """
+    # range S, L = none """
  # time span
 t_vec = np.linspace(0.1, 20, num=50)
 time_span = [t_vec[0], t_vec[-1]] 
@@ -130,7 +135,8 @@ x0 = [10, 20, 15, 10, 20, 15, 10, 20, 15, 10, 20, 15, 10]
 sol = integrate.solve_ivp(closed_loop, time_span, x0, method="LSODA", t_eval=t_vec)
 
 # plot model
-ymodel = sol.y[3]
+# ymodel = sol.y[input("number between 0-13: ")]
+ymodel = sol.y[1]
 plt.plot(t_vec, ymodel)
 plt.title("Simulated model")
 plt.show()

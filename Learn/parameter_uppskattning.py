@@ -79,8 +79,7 @@ def cost_function(b, y_obs1):
     
     # Step 2: Extract x0 (simulated y-vec) , denna delen varierar beroende på del av data, def fkn här.
     global y_model
-    y_model = sol.y[0] 
-
+    y_model = sol.y[0] # byt ut siffran i y[], nr 0-13
 
     # for sats, om > värde, addera ngt till kostnadsfkn
 
