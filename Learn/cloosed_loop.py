@@ -128,7 +128,7 @@ def closed_loop(t,x):
     range_Q = [8, 1146]
     # range S, L = none """
  # time span
-t_vec = np.linspace(0.1, 120, num=20)
+t_vec = np.linspace(0.1, 200, num=20)
 time_span = [t_vec[0], t_vec[-1]] 
 # initial conditions
 x0 = [10, 20, 15, 10, 20, 15, 10, 20, 15]
@@ -137,10 +137,12 @@ sol = integrate.solve_ivp(closed_loop, time_span, x0, method="LSODA", t_eval=t_v
 
 # plot model
 # ymodel = sol.y[input("number between 0-8: ")]
-ymodel = sol.y[0]
+ymodel = sol.y[2]
+   
 plt.plot(t_vec, ymodel)
 plt.title("Simulated model")
 plt.show()
+
 """def ymodel():
     R = range(9)
     for i in R:
@@ -150,6 +152,9 @@ plt.show()
         
 Modell = ymodel()
 print(Modell)"""
+
+
+
 
 
 
