@@ -68,7 +68,7 @@ def closed_loop(t,x):
     # Intestine glucose [2]
     dL = b8*S-b10*L
     
-    # plasma glucose [3]
+    # plasma glucose [3]  denna som vi ska matcha med data! Bör vi göra om MK fkn?
     dG = f*b10*L/v + f*b5*C/v - b1*G-b3*I*G
     
     # plasma insulin [4]
