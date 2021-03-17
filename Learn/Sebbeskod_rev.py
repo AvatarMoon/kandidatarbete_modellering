@@ -76,7 +76,7 @@ y_obs2 = simulate_model2(t_vec, 0.5) # dvs x2_obs
     observed data as input. 
 """
 
-def cost_function(k, y_obs1):
+def cost_function(k, y_obs1, y_obs2):
     
     # Model parameters  
     x0 = [10.0, 20.0]   
@@ -99,7 +99,7 @@ def cost_function(k, y_obs1):
 # Note, a numerical optmizer require a starting guess, here I use the start-guess (10.0, 10.0)
 # (quite a bad start-guess)
 
-res = minimize(cost_function, [10.0, 20.0], method='Powell', args = (y_obs1, )) 
+res = minimize(cost_function, [10.0, 20.0], method='Powell', args = (y_obs1, y_obs2)) 
 
 # Print some statistics 
 print("Optimal value found via Powells-method:")
