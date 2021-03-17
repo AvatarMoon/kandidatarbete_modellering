@@ -8,9 +8,14 @@ import math
 cb_palette = ["#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
 
 # Glucose intake
-H = int(input("Insert glucose intake: "))
+H = float(input("Insert glucose intake: "))
 
 def closed_loop(t,x):
+    
+    """b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b21, b22, b23, b25, b27 = b"""
+    x[x < 0] = 0.0
+    S, L, G, C, I, W, E, M = x 
+
     # Moste of the regular parameters
     b1 = 0.0059
     b2 = 0.1262
@@ -39,6 +44,8 @@ def closed_loop(t,x):
     e = 1
     Ge = 5
     c3 = 0.0554
+    l = 0.006
+    m = 0.04
     
     """ 
     k8 = 0.5275
@@ -53,8 +60,6 @@ def closed_loop(t,x):
     KmG1 = 1.082 
     Kgluc = 0.25
     Fat = 22
-    #l = 0.006
-    #m = 0.04
     #r = 0.04
     #p2u = 0.033
     # Ib =
@@ -63,10 +68,6 @@ def closed_loop(t,x):
     Gb = """
 
      
-    
-    """ b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b21, b22, b23, b25, b27 = b """
-    S, L, G, C, I, W, E, M, Q = x 
-
 
     # Stomach glucose [1]
     dS = b9*H-b8*S
@@ -77,6 +78,7 @@ def closed_loop(t,x):
     # plasma glucose [3]  denna som vi ska matcha med data! Bör vi göra om MK fkn?
     dG = f*b10*L/v + f*b5*C/v - b1*G-b3*I*G
     
+    print("G = {}, W = {},I = {}".format(G, W, I))
     # plasma insulin [4]
     dI = b4*G + c*W*G-b2*I
     
@@ -85,12 +87,12 @@ def closed_loop(t,x):
     
     # plasma glucagon [6] # 
     # u = np.heaviside(Ge, G)  # lägg till u enligt artikel
-    """def dEdt():
-        if (Ge - G) >= 0:
-            dE = c0 + (c1/(c2 + I*e))*(Ge - G) - c3*E 
-        elif (Ge - G) < 0:
-            dE = c0 - c3*E
-        return dE """
+    
+    """if (Ge - G) >= 0:
+        dE = c0 + (c1/(c2 + I*e))*(Ge - G) - c3*E 
+    elif (Ge - G) < 0:
+        dE = c0 - c3*E"""
+    
     dE = c0 + (c1/(c2 + I*e))*(Ge - G) - c3*E             
     
     # liver glucose [7]
@@ -104,9 +106,10 @@ def closed_loop(t,x):
 
     # Dynamics of plasma leptin (Y) [10]
     #dY = b13*A*Fat - b14*Y
-
+    #print("S = {}, Q = {}, m = {}, l = {}, I = {}".format(S, Q, m, l, I))
+    
     # Dynamics of ghrelin concentration n plasma (Q) [11] RÄTTA DENNA!!!
-    dQ = b12*math.exp(-S)*math.exp(-I) - b11*Q
+    # dQ = b12*math.exp(-l*S)*math.exp(-m*I) - b11*Q
 
     # Linking the whole body model with the cellular one [13] RÄTTA DENNA!!!
     # dINSA = -INSA + (I-2)
@@ -114,7 +117,7 @@ def closed_loop(t,x):
     # Linking the whole body model with the cellular one [14]
     #dGtA = - q1*GtA + q2*(G - 2)
 
-    return [dS, dL, dG, dI, dW, dE, dC, dM, dQ]
+    return [dS, dL, dG, dI, dW, dE, dC, dM]
 
     # Ranges 
     """ range_G = [4.5, 11] # mM
@@ -131,13 +134,15 @@ def closed_loop(t,x):
 t_vec = np.linspace(0.1, 200, num=20)
 time_span = [t_vec[0], t_vec[-1]] 
 # initial conditions
-x0 = [10, 20, 15, 10, 20, 15, 10, 20, 15]
+x0 = [1, 2, 1.5, 1, 2, 1.5, 1, 2]
+
 # solve ODE
 sol = integrate.solve_ivp(closed_loop, time_span, x0, method="LSODA", t_eval=t_vec)
 
 # plot model
 # ymodel = sol.y[input("number between 0-8: ")]
 ymodel = sol.y[2]
+print(sol.y[2])
    
 plt.plot(t_vec, ymodel)
 plt.title("Simulated model")

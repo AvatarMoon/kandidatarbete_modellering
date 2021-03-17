@@ -79,7 +79,13 @@ def cost_function(b, y_obs1):
     
     # Step 2: Extract x0 (simulated y-vec) , denna delen varierar beroende på del av data, def fkn här.
     global y_model
-    y_model = sol.y[0] # byt ut siffran i y[], nr 0-13
+    
+    #y_model = sol.y[0] # byt ut siffran i y[], nr 0-13
+    y_model1 = sol.y[0]
+    y_model2 = sol.y[1]
+
+    squared_sum = np.sum((y_model1 - y_obs1)**2) + np.sum((y_model2 - y_obs2)**2)
+
 
     # for sats, om > värde, addera ngt till kostnadsfkn
 
