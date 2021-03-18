@@ -74,9 +74,10 @@ def closed_loop(t,x):
     dL = b8*S-b10*L
     
     # plasma glucose [3]  denna som vi ska matcha med data! Bör vi göra om MK fkn?
-    dG = f*b10*L/v + f*b5*C/v - b1*G-b3*I*G
+    dG = f*b10*L/v + f*b5*C/v - b1*G- b3*I*G
     
     print("G = {}, W = {},I = {}".format(G, W, I))
+    
     # plasma insulin [4]
     dI = b4*G + c*W*G-b2*I
     
