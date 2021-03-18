@@ -45,3 +45,9 @@ Ib =
 q1 = 0.0031
 q2 = 0.4054
 Gb =
+
+# Startvärden
+S(0) = 4 mmol
+L(0) = 14 mmol
+G(0) = 5 mmol
+I(0) = 60 pM
