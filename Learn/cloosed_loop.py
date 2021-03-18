@@ -7,11 +7,14 @@ import math
     # Colour-blind friendly palette (use nice colors)
 cb_palette = ["#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
 
+# Glucose intake
+H = float(input("Insert glucose intake: "))
+
 def closed_loop(t,x):
     
     """b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b21, b22, b23, b25, b27 = b"""
     x[x < 0] = 0.0
-    S, L, G, C, I, W, E, M, H = x 
+    S, L, G, C, I, W, E, M = x 
 
     # Moste of the regular parameters
     b1 = 0.0059
@@ -41,9 +44,8 @@ def closed_loop(t,x):
     e = 1
     Ge = 5
     c3 = 0.0554
-    b100=0.3
-    #l = 0.006
-    #m = 0.04
+    l = 0.006
+    m = 0.04
     
     """ 
     k8 = 0.5275
@@ -100,8 +102,6 @@ def closed_loop(t,x):
     # dynamics of glucose mass in muscle tissue [8]
     dM = 0.1*(v/f)*b3*G*I*e - b27*M
 
-    dH = -b100*dS
-
     # Adipose tissue glucose mass (A) [9] Länk till cellulär nivå, ta bort om det går.
     #dA = k8*(GtA)/(KmG4 + GtA) + GLUT1*(GtA)/(KmG1 + GtA) - Kgluc*A
 
@@ -118,7 +118,7 @@ def closed_loop(t,x):
     # Linking the whole body model with the cellular one [14]
     #dGtA = - q1*GtA + q2*(G - 2)
 
-    return [dS, dL, dG, dI, dW, dE, dC, dM, dH]
+    return [dS, dL, dG, dI, dW, dE, dC, dM]
 
     # Ranges 
     """ range_G = [4.5, 11] # mM
@@ -132,28 +132,30 @@ def closed_loop(t,x):
     range_Q = [8, 1146]
     # range S, L = none """
  # time span
-t_vec = np.linspace(1, 220, num=20)
+t_vec = np.linspace(0.1, 200, num=20)
 time_span = [t_vec[0], t_vec[-1]] 
 # initial conditions
-x0 = [0.1, 0.2, 0.5, 1, 0.2, 0.5, 0.1, 0.2, 0.5]
+x0 = [1, 2, 1.5, 1, 2, 1.5, 1, 2]
 
 # solve ODE
 sol = integrate.solve_ivp(closed_loop, time_span, x0, method="LSODA", t_eval=t_vec)
 
 # plot model
 # ymodel = sol.y[input("number between 0-8: ")]
-ymodel = sol.y[1]
-# print(sol.y[1])
+ymodel = sol.y[2]
+print(sol.y[2])
    
 plt.plot(t_vec, ymodel)
 plt.title("Simulated model")
 plt.show()
 
-
-
-
-
-
-
-
+"""def ymodel():
+    R = range(9)
+    for i in R:
+        model = sol.y[i]
+        
+    return model
+        
+Modell = ymodel()
+print(Modell)"""
 
