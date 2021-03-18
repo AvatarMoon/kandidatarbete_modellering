@@ -7,7 +7,7 @@ from scipy.optimize import curve_fit
 
 # Definiera den nya funktionen??
 def func(x, a, b, c, d):
-    return a * np.exp(x * -b) + c * 
+    return a * np.exp(x * -b) + c + d
 
 # Glukosupptag % av max 
 ydata = np.array([0., 22.4816, 52.6589, 70.9468, 84.0467, 89.6239, 95.3122, 100])
