@@ -2,6 +2,7 @@ import numpy as np
 import scipy.integrate as integrate
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
+# hämta modell från cloosed loop
 
 
 """                                                                                                                                                                      
@@ -38,7 +39,7 @@ def model1(t, x, b):
     data is simulated using an additivate Gaussian noise of strength sigma (sigma
     is provided by the user). Note, for model1 x2 is treated as the output. 
 """
-def simulate_model1(t_vec, sigma):
+def simulate_model(t_vec, sigma):
      
     # Model parameters 
     x0 = [S0, L0, G0, I0]   # initial

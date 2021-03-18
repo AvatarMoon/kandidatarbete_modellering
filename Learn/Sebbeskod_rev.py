@@ -42,7 +42,6 @@ def simulate_model1(t_vec, sigma):
     
     # Extract x2 and add measurment noise 
     x1_obs = sol.y[0] + np.random.normal(loc=0.0, scale=sigma, size=n_data_points)
-    # x1_obs = sol.y[0] + np.random.normal(loc=0.0, scale=sigma, size=n_data_points)
     return x1_obs 
 
 def simulate_model2(t_vec, sigma): #vårt andra set av datapunkter
@@ -59,7 +58,6 @@ def simulate_model2(t_vec, sigma): #vårt andra set av datapunkter
     # Extract x2 and add measurment noise 
     global x2_obs
     x2_obs = sol.y[1] + np.random.normal(loc=0.0, scale=sigma, size=n_data_points)
-    # x2_obs = sol.y[0] + np.random.normal(loc=0.0, scale=sigma, size=n_data_points)
     return x2_obs
     #print(x2_obs)
 
@@ -69,8 +67,13 @@ def simulate_model2(t_vec, sigma): #vårt andra set av datapunkter
 t_vec = np.linspace(0.1, 2.0, num=50)
 # Set seed to reproduce
 np.random.seed(123)
+<<<<<<< HEAD
 y_obs1 = simulate_model1(t_vec, 0.5) # dvs x1_obs
 y_obs2 = simulate_model2(t_vec, 0.5) # dvs x2_obs
+=======
+y_obs1 = simulate_model1(t_vec, 0.5) #här sätter vi in riktiga datapunkter
+y_obs2 = simulate_model2(t_vec, 0.5) 
+>>>>>>> d3918faa84b0ed194c93507fe18ad7122dad699f
 
 print(y_obs2)
 
@@ -115,6 +118,8 @@ print(res.fun)
 
 # Plotting observed data at time-points 0.1, ..., 2.0 (we have 50 data-points)
 
+print (y_obs1)
+print(t_vec)
 plot1 = plt.figure(1)
 plt.plot(t_vec, y_obs1)
 plt.title("Simulated data and model1")
