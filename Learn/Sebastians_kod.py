@@ -91,4 +91,4 @@ print("True values")
 print([1.0, 2.0])
 print("Value of cost-function")
 print(res.fun)
-
+plt.show()

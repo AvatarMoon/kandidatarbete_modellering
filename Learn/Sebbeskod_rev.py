@@ -46,7 +46,6 @@ def simulate_model1(t_vec, sigma):
     return x1_obs 
 
 def simulate_model2(t_vec, sigma): #vårt andra set av datapunkter
-     
     # Model parameters  
     x0 = [10.0, 20.0]   
     time_span = [t_vec[0], t_vec[-1]]
@@ -58,18 +57,22 @@ def simulate_model2(t_vec, sigma): #vårt andra set av datapunkter
     sol = integrate.solve_ivp(model, time_span, x0, method="LSODA", args=(rates, ), t_eval=t_vec)
     
     # Extract x2 and add measurment noise 
+    global x2_obs
     x2_obs = sol.y[1] + np.random.normal(loc=0.0, scale=sigma, size=n_data_points)
     # x2_obs = sol.y[0] + np.random.normal(loc=0.0, scale=sigma, size=n_data_points)
     return x2_obs
+    #print(x2_obs)
 
+#print(x2_obs) #varför hittar den inte denna?
 
 # We simulate data at 50 data-points from 0.1 to 2.0
 t_vec = np.linspace(0.1, 2.0, num=50)
 # Set seed to reproduce
 np.random.seed(123)
-y_obs1 = simulate_model1(t_vec, 0.5) # dvs x2_obs
+y_obs1 = simulate_model1(t_vec, 0.5) # dvs x1_obs
 y_obs2 = simulate_model2(t_vec, 0.5) # dvs x2_obs
 
+print(y_obs2)
 
 """
     Cost-function for model1 which takes the model-parameters (k1, k2) and 

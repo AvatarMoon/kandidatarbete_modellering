@@ -158,11 +158,3 @@ plt.show()
 Modell = ymodel()
 print(Modell)"""
 
-
-
-
-
-
-
-
-

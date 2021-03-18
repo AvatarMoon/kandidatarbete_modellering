@@ -29,7 +29,7 @@ def model1(t, x, b):
     dx0 = b9*H-b8*x[0]  #S
     dx1 = b8*x[0]-b10*x[1] #L
     dx2 = f*b10*x[1]/v + f*b5*C/v - b1*x[2]-b3*x[3]*x[2] #G
-    dx3 = b6*x[1] - b7*x[3] + x[0] # I
+    dx3 = b6*x[1] - b7*x[3] + x[0] #I
    
     return [dx0, dx1, dx2, dx3]
 
