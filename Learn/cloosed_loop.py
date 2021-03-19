@@ -72,6 +72,8 @@ def closed_loop(t,x):
     # Stomach glucose [1]
     dS = b9*H-b8*S
     
+    dH = - b9*H
+    
     # Intestine glucose [2]
     dL = b8*S-b10*L
     

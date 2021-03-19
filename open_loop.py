@@ -55,7 +55,7 @@ def open_loop(t,x):
     dM = 0.1*(v/f)*b3*G*I - b27*M
 
     # Glucos intake [6]
-    dH = -b100*G
+    dH = -b100*G*H
 
     return [dG, dI, dE, dC, dM, dH]
 
