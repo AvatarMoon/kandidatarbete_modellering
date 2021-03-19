@@ -55,16 +55,16 @@ def open_loop(t,x):
     dM = 0.1*(v/f)*b3*G*I - b27*M
 
     # Glucos intake [6]
-    dH = -b100*G*H
+    dH = - b100*H*G
 
     return [dG, dI, dE, dC, dM, dH]
 
 # Time span
-t_vec = np.linspace(1, 220, num=20)
+t_vec = np.linspace(0, 240, num=20)
 time_span = [t_vec[0], t_vec[-1]]
 
 # Initial values to model
-x0 = [0.5, 1, 0.5, 0.1, 0.2, 0.5]
+x0 = [1, 0.8, 0.5, 0.1, 0.2, 0.5]
 
 # Solve ODE
 sol = integrate.solve_ivp(open_loop, time_span, x0, method="LSODA", t_eval=t_vec)
