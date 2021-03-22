@@ -55,7 +55,7 @@ def open_loop(t,x):
     dM = 0.1*(v/f)*b3*G*I - b27*M
 
     # Glucos intake [6]
-    dH = -b100*G
+    dH = -b100*G*H
 
     return [dG, dI, dE, dC, dM, dH]
 
@@ -71,7 +71,7 @@ sol = integrate.solve_ivp(open_loop, time_span, x0, method="LSODA", t_eval=t_vec
 
 # Plot model
 
-ymodel = sol.y[1]
+ymodel = sol.y[0]
 plt.plot(t_vec, ymodel)
 plt.title('Open loop-model')
 plt.show()
