@@ -72,6 +72,8 @@ def closed_loop(t,x):
     # Stomach glucose [1]
     dS = b9*H-b8*S
     
+    dH = - b9*H
+    
     # Intestine glucose [2]
     dL = b8*S-b10*L
     
@@ -121,7 +123,8 @@ def closed_loop(t,x):
     return [dS, dL, dG, dI, dW, dE, dC, dM]
 
     # Ranges 
-    """ range_G = [4.5, 11] # mM
+    """ 
+    range_G = [4.5, 11] # mM
     range_I = [38, 400] #pM
     range_W = [5, 50]
     range_E = [28.68, 47.04]
@@ -139,6 +142,8 @@ x0 = [1, 2, 1.5, 1, 2, 1.5, 1, 2]
 
 # solve ODE
 sol = integrate.solve_ivp(closed_loop, time_span, x0, method="LSODA", t_eval=t_vec)
+# class scipy.optimize.Bounds(lb, ub, keep_feasible=False) vart ska denna in och hur sätter man olika bounds för olika konc.
+# class scipy.optimize.LinearConstraint(A, lb, ub, keep_feasible=False)[source]
 
 # plot model
 # ymodel = sol.y[input("number between 0-8: ")]
