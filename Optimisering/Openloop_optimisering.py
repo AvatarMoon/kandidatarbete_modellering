@@ -61,26 +61,7 @@ def simulate_model(t_vec, sigma):
      
     # Model parameters 
     x0 = [1, 0.8, 0.5, 0.1, 0.2, 0.5]   # initial
-    t_vec = [0.231756251, 0.17399052, 3.205728606, 3.06, 6,229764595, 10,80577321, 15,76784945, 21,44814628, 27,10148577, 36,36133236, 44,19243988, 51.32843312, 59.14413644, 70.19568344
-81.86532375
-92.49999473
-96.041034
-98.8638527
-106.679556
-113.7770388
-120.9014789
-128.7595437
-135.6018945
-146.2904802
-157.7049885
-173.0080932
-194.1262815
-86.71186854
-84.17884126
-82.29471568
-80.7697004
-79.17921729
-79.10219631
+    t_vec = [0.231756251, 0.17399052, 3.205728606, 3.06, 6,229764595, 10,80577321, 15,76784945, 21,44814628, 27,10148577, 36,36133236, 44,19243988, 51.32843312, 59.14413644, 70.19568344, 81.86532375, 92.49999473, 96.041034, 98.8638527, 106.679556, 113.7770388, 120.9014789, 128.7595437, 135.6018945, 146.2904802, 157.7049885, 173.0080932, 194.1262815,, 86.71186854, 84.17884126, 82.29471568, 80.7697004, 79.17921729, 79.10219631
 78.15291281
 ]
     time_span = [t_vec[0], t_vec[-1]] # 0 är första och -1 är sista
@@ -118,6 +99,8 @@ def cost_function(b, y0_obs):
     
     # Step 1: Solve ODE-system 
     sol = integrate.solve_ivp(open_loop, time_span, x0, method="LSODA", args=(b, ), t_eval=t_vec)
+    class scipy.optimize.Bounds(lb, ub, keep_feasible=False) # vart ska denna in och hur sätter man olika bounds för olika konc.
+    class scipy.optimize.LinearConstraint(A, lb, ub, keep_feasible=False)[source]
     
     # Step 2: Extract x0 (simulated y-vec) , denna delen varierar beroende på del av data, def fkn här.
     global y_model
