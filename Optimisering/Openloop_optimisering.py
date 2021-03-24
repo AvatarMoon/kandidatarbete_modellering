@@ -6,9 +6,22 @@ import math
 import pandas as pd 
 
 # get data
-"""Glucose = pd.read_csv()
-Insulin = pd.read_csv()"""
+data_G = pd.read_csv ("C:/Users/bella/Documents/Studier/Kandidat/Data/Glukos_FFaraber.csv")
+print("Glucose plasma data")
+print(data_G)
 
+data_I = pd.read_csv("C:/Users/bella/Documents/Studier/Kandidat/Data/Insulin_FFaraber.csv")
+
+G_data = data_G.values # Turn the data into np-array (matrix)
+I_data = data_I.values
+y_obs = G_data[:, 1]
+global t_data
+global t_eval
+tG_data = G_data[:, 0]
+# tI_data = I_data[:, 0]
+t_vec = tG_data
+
+# Tillfälliga parametrar, ev startgissningar, kan räknas om med ekv human vs horses
 c0 = 1.8854
 c1 = 198
 c2 = 94
@@ -41,22 +54,22 @@ def open_loop(t,x,b):
 
     # Concentrations in the model as input
     G, I, E, C, M, H = x
-    # Glucose plasma [1]
+    # Glucose plasma [1]  G0 closed loop = 5mM
     dG = f*b10*H/v + f*b5*C/v - b1*G - b3*I*G
 
-    # Insulin plasma [2]
+    # Insulin plasma [2]  60 pM
     dI = b4*G - b2*I   
 
-    # Glucacon plasma [3]
+    # Glucacon plasma [3] E0 closed loop = 34 pM
     dE = c0 + (c1/(c2 + I))*(Ge - G)*np.heaviside(Ge-G,1) - c3*E 
 
-    # GLucose liver [4]
+    # GLucose liver [4] C0 closed loop = 3 mmol
     dC = b23 - b25*I - b22*G + b21*E - b5*C
 
-    # Glucose musle [5]
+    # Glucose musle [5] M0 = 2.5 mmol
     dM = 0.1*(v/f)*b3*G*I - b27*M
 
-    # Glucos intake [6]
+    # Glucos intake [6]  H0 = 200 mmol
     dH = - b100*H*G
 
     return [dG, dI, dE, dC, dM, dH]
@@ -64,8 +77,9 @@ def open_loop(t,x,b):
 def simulate_model(t_vec, sigma):
      
     # Model parameters 
-    x0 = [1, 0.8, 0.5, 0.1, 0.2, 0.5]   # initial
-    t_vec = [0.231756251, 0.17399052, 3.205728606, 3.06, 6,229764595, 10,80577321, 15,76784945, 21,44814628, 27,10148577, 36,36133236, 44,19243988, 51.32843312, 59.14413644, 70.19568344, 81.86532375, 92.49999473, 96.041034, 98.8638527, 106.679556, 113.7770388, 120.9014789, 128.7595437, 135.6018945, 146.2904802, 157.7049885, 173.0080932, 194.1262815, 86.71186854, 84.17884126, 82.29471568, 80.7697004, 79.17921729, 79.10219631, 78.15291281]
+    x0 = [5, 60, 34, 3, 2.5, 200] # closed loop initial
+    # x0 = [1, 0.8, 0.5, 0.1, 0.2, 0.5] initial för hästar
+    # t_vec borde hämtas från data
     time_span = [t_vec[0], t_vec[-1]] # 0 är första och -1 är sista
     rates = [b1, b3, b5, b6, b7, b8, b9, b10, f, v] #parametrar
     n_data_points = len(t_vec)
@@ -80,23 +94,21 @@ def simulate_model(t_vec, sigma):
     # bara optimera en?
     return x0_obs
  
-
-# We simulate data at 144 data-points from 1 to 1440
+""" simulate data
 t_vec = np.linspace(0, 240, num=20) #var 10e minut i ett dygn
 # Set seed to reproduce
 np.random.seed(123)
-y0_obs = simulate_model(t_vec, 0.5)
-
+y0_obs = simulate_model(t_vec, 0.5) """
 
 """
     Cost-function for model1 which takes the model-parameters (k1, k2) and 
     observed data as input. 
 """
 
-def cost_function(b, y0_obs):
+def cost_function(b, y_obs):
     
     # Model parameters  
-    x0 = [1, 0.8, 0.5, 0.1, 0.2, 0.5]   # initial concentrations  
+    x0 = [5, 60, 34, 3, 2.5, 200]  # initial closed loop  
     time_span = [t_vec[0], t_vec[-1]]
     
     # Step 1: Solve ODE-system 
@@ -107,20 +119,19 @@ def cost_function(b, y0_obs):
     # Step 2: Extract x0 (simulated y-vec) , denna delen varierar beroende på del av data, def fkn här.
     #global y_model
     
-    #y_model = sol.y[0] # byt ut siffran i y[], nr 0-13
     y0_model = sol.y[0]
     #y_model2 = sol.y[1]
 
     # for sats, om > värde, addera ngt till kostnadsfkn
 
     # Step 3: Calculate cost-function 
-    squared_sum = np.sum((y0_model - y0_obs)**2)
+    squared_sum = np.sum((y0_model - y_obs)**2)
 
     return squared_sum
 
 # Note, a numerical optmizer require a starting guess, here I use the start-guess (0.022, 0.022, 0.022)
-res = minimize(cost_function, [b1, b3, b5, b6, b7, b8, b9, b10, f, v], method='Powell', args = (y0_obs, )) #lägg in constraints här
- """loop för olika rates/startgissningar""" 
+res = minimize(cost_function, [b1, b3, b5, b6, b7, b8, b9, b10, f, v], method='Powell', args = (y_obs, )) #lägg in constraints här
+"""loop för olika rates/startgissningar""" 
 
 # Print some statistics 
 print("Optimal value found via Powells-method:")
@@ -129,7 +140,7 @@ print("Value of cost-function")
 print(res.fun)
 
 # Plotting observed data at time-points 0.1, ..., 2.0 (we have 50 data-points)
-plt.plot(t_vec, y0_obs)
+plt.plot(t_vec, y_obs)
 plt.title("Simulated data and model")
 #plt.plot(t_vec, y_model)
 plt.show()
