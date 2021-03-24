@@ -123,6 +123,23 @@ def cost_function(b, y_obs):
     #y_model2 = sol.y[1]
 
     # for sats, om > värde, addera ngt till kostnadsfkn
+    """ range_G = [4.5, 11] # mM
+    range_I = [38, 400] #pM
+    range_E = [28.68, 47.04] # pM
+    range_C = [0, 8] # mmol
+    range_M = [2, 13] # mmol
+  
+    for i in res:
+        if G > 11:
+            i += 100
+        elif I > 400:
+            i += 100
+        elif E > 47.04:
+            i+= 100
+        elif M > 13:
+            i+= 100
+        elif H > 200:
+            i+= 100  """  
 
     # Step 3: Calculate cost-function 
     squared_sum = np.sum((y0_model - y_obs)**2)
