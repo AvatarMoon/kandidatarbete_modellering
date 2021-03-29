@@ -40,7 +40,7 @@ def open_loop(t,x):
 
 
     # Glucose plasma [1]
-    dG = f*b10*H/v + f*b5*C/v - b1*G - b3*I*G
+    dG = np.log(f)*np.log(b10)*H/np.log(v) + np.log(f*b5)*C/np.log(v) - np.log(b1)*G - np.log(b3)*I*G
 
     # Insulin plasma [2]
     dI = b4*G - b2*I   

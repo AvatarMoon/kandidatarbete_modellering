@@ -19,7 +19,7 @@ global t_data
 global t_eval
 tG_data = G_data[:, 0]
 # tI_data = I_data[:, 0]
-t_vec = tG_data
+t_vec = G_data[1, :]
 
 # Tillfälliga parametrar, ev startgissningar, kan räknas om med ekv human vs horses
 c0 = 1.8854
