@@ -41,13 +41,14 @@ l = 0.006
 m = 0.04
 r = 0.04
 p2u = 0.033
-Ib =
+Ib = 0
+Ub = 100
 q1 = 0.0031
 q2 = 0.4054
-Gb =
+# Gb =
 
 # Startvärden
-S(0) = 4 mmol
-L(0) = 14 mmol
-G(0) = 5 mmol
-I(0) = 60 pM
+S(0) = 4 # mmol
+L(0) = 14 # mmol
+G(0) = 5 # mmol
+I(0) = 60 # pM
