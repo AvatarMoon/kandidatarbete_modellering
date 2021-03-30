@@ -17,7 +17,7 @@ def open_loop(t,x):
     # Concentrations in the model as input
     G, I, E, C, M, H = x
 
-    c = 0.1060
+    # c = 0.1060
     c0 = 1.8854
     c1 = 198
     c2 = 94
@@ -40,22 +40,22 @@ def open_loop(t,x):
 
 
     # Glucose plasma [1]
-    dG = f*b10*H/v + f*b5*C/v - b1*G - b3*I*G
+    dG = np.log(f)*np.log(b10)*H/np.log(v) + np.log(f*b5)*C/np.log(v) - np.log(b1)*G - np.log(b3)*I*G
 
     # Insulin plasma [2]
-    dI = b4*G - b2*I   
+    dI = np.log(b4)*G - np.log(b2)*I   
 
     # Glucacon plasma [3]
-    dE = c0 + (c1/(c2 + I))*(Ge - G)*np.heaviside(Ge-G,1) - c3*E 
+    dE = np.log(c0) + (np.log(c1)/(np.log(c2) + I))*(Ge - G)*np.heaviside(Ge-G,1) - np.log(c3)*E 
 
     # GLucose liver [4]
-    dC = b23 - b25*I - b22*G + b21*E - b5*C
+    dC = np.log(b23) - np.log(b25)*I - np.log(b22)*G + np.log(b21)*E - np.log(b5)*C
 
     # Glucose musle [5]
-    dM = 0.1*(v/f)*b3*G*I - b27*M
+    dM = 0.1*np.log(v/f)*np.log(b3)*G*I - np.log(b27)*M
 
     # Glucos intake [6]
-    dH = -b100*G*H
+    dH = -np.log(b100)*G*H
 
     return [dG, dI, dE, dC, dM, dH]
 
