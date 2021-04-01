@@ -4,34 +4,23 @@ from scipy.optimize import minimize
 import matplotlib.pyplot as plt 
 import math 
 import pandas as pd
-import os  
-
+import os
 
 # get data 
-data_paths = os.listdir('data_horses')
-G_data = data_path[0]['konc']
-print(G_data)
-data = scipy.io.loadmat('data_glucose_fat/' + x)
+data_G = pd.read_csv ("data_horses/Glukos_FFaraber.csv", sep=';')
+data_I = pd.read_csv ("data_horses/Insulin_FFaraber.csv", sep=';')
+data_G = data_G.sort_values(by=['tid'])
 
 
-
-data_G= pd.read_csv ("/Users/Hanna/Documents/Skola/Kandidatarbete/data/Glukos_FFaraber") 
-data_I = pd.read_csv("C:\Users\Hanna\Documents\Skola\Kandidatarbete\data\Insulin_FFaraber.csv") 
-G_data = data_G.values # första raden hämtas inte 
-print(G_data) # vår data verkar bli en vektor av både tid och konc istället för en matris
-print(G_data.shape)
-I_data = data_I.values 
-#print(I_data) 
 global tG_vec 
 global tI_vec 
-tG_vec = G_data[:, 0] 
-#print(tG_vec) 
-tI_vec = I_data[:, 0] 
-#print(tI_vec) 
-cG_vec = G_data[:, 1] # denna funkar inte "IndexError: index 1 is out of bounds for axis 1 with size 1",  
-# print(cG_vec) 
-cI_vec = I_data[:, 1] 
-#print(cI_vec) 
+
+# Extract times- and concentration-vectors
+tG_vec = data_G['tid'].values
+tI_vec = data_I['tid'].values  
+cG_vec = data_G['konc'].values
+cI_vec = data_I['konc'].values 
+
 
 """
 # Tillfälliga parametrar, ev startgissningar, kan räknas om med ekv human vs horses
@@ -63,7 +52,7 @@ v = 15
 Ge = 5 # konstant?
 
 def open_loop(t,x,b): 
-    c0, c1, c2, c3, b1, b2, b3, b4, b5, b10, b21, b22, b23, b25, b27, f, v = b 
+    c0, c1, c2, c3, b1, b2, b3, b4, b5, b10, b21, b22, b23, b25, b27, b100, f, v = b
      
     # Says that the concentrations can't be lower than zero 
     x[x < 0] = 0.0 
@@ -96,11 +85,12 @@ def cost_function(b, yG_vec, yI_vec):
 
     # Model parameters   
     x0 = [5, 60, 34, 3, 2.5, 200]  # initial closed loop   
-    time_span = [t_vec[0], t_vec[-1]] #vad sätter vi här när det finns två olika? 
+    time_span_G = [tG_vec[0], tG_vec[-1]] #vad sätter vi här när det finns två olika?
+    time_span_I = [tI_vec[0], tI_vec[-1]]
 
     # Step 1: Solve ODE-system  
-    solG = integrate.solve_ivp(open_loop, time_span, x0, method="LSODA", args=(b, ), t_eval=tG_vec) 
-    solI = integrate.solve_ivp(open_loop, time_span, x0, method="LSODA", args=(b, ), t_eval=tI_vec) 
+    solG = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(b, ), t_eval=tG_vec) 
+    solI = integrate.solve_ivp(open_loop, time_span_I, x0, method="LSODA", args=(b, ), t_eval=tI_vec) 
     """class scipy.optimize.Bounds(lb, ub, keep_feasible=False) # vart ska denna in och hur sätter man olika bounds för olika konc. 
     """ 
 
@@ -136,8 +126,9 @@ def cost_function(b, yG_vec, yI_vec):
     return squared_sum 
 
 
-# Note, a numerical optmizer require a starting guess, here I use the start-guess (0.022, 0.022, 0.022) 
-res = minimize(cost_function, [1.885, 198, 94, 0.0554, 0.0059, 0.1262, 0.00005, 0.4543, 0.185, 0.022, 0.00876, 0.0021, 0.08, 0.00026, 0.014, 0.9, 15], method='Powell', args = (cG_vec, cI_vec)) #lägg in constraints här 
+# Note, a numerical optmizer require a starting guess, here I use the start-guess (0.022, 0.022, 0.022)
+start_values = [1.885, 198, 94, 0.0554, 0.0059, 0.1262, 0.00005, 0.4543, 0.185, 0.022, 0.00876, 0.0021, 0.08, 0.00026, 0.014, 0.3, 0.9, 15]
+res = minimize(cost_function, start_values, method='Powell', args = (cG_vec, cI_vec)) #lägg in constraints här 
 """loop för olika rates/startgissningar"""  
  
 

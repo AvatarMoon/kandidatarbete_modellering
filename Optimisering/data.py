@@ -4,15 +4,21 @@ import csv
 
 data_path = os.listdir('data_horses')
 
-conc = []
-for x in data_path:
-    values_list = []
-    with open('data_horses/' + x) as file:
+def read_csv(data_path):
+    data = []
+    with open(data_path) as file:
         for line in file.readlines()[1:]:
             entries = line.strip().split(";")
             value = entries[1]
-            values_list.append(value)
-    conc.append(values_list)
+            data.append(value)
+    return data
+
+conc = []
+for x in data_path:
+    values_list = []
+    data = read_csv('data_horses/' + x)
+    conc.append(data)
+    
 
 g_data = conc[0]
 i_data = conc[1]
