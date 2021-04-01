@@ -3,14 +3,23 @@ import scipy.integrate as integrate
 from scipy.optimize import minimize 
 import matplotlib.pyplot as plt 
 import math 
-import pandas as pd  
+import pandas as pd
+import os  
 
 
 # get data 
-data_G= pd.read_csv ("C:\Users\Hanna\Documents\Skola\Kandidatarbete\data") 
-data_I = pd.read_csv("C:/Users/bella/Documents/Studier/Kandidat/Data/Insulin_FFaraber.csv") 
+data_paths = os.listdir('data_horses')
+G_data = data_path[0]['konc']
+print(G_data)
+data = scipy.io.loadmat('data_glucose_fat/' + x)
+
+
+
+data_G= pd.read_csv ("/Users/Hanna/Documents/Skola/Kandidatarbete/data/Glukos_FFaraber") 
+data_I = pd.read_csv("C:\Users\Hanna\Documents\Skola\Kandidatarbete\data\Insulin_FFaraber.csv") 
 G_data = data_G.values # första raden hämtas inte 
 print(G_data) # vår data verkar bli en vektor av både tid och konc istället för en matris
+print(G_data.shape)
 I_data = data_I.values 
 #print(I_data) 
 global tG_vec 
@@ -83,7 +92,7 @@ def open_loop(t,x,b):
     return [dG, dI, dE, dC, dM, dH] 
  
 
-def cost_function(b, yG_obs, yI_obs): 
+def cost_function(b, yG_vec, yI_vec): 
 
     # Model parameters   
     x0 = [5, 60, 34, 3, 2.5, 200]  # initial closed loop   
@@ -128,7 +137,7 @@ def cost_function(b, yG_obs, yI_obs):
 
 
 # Note, a numerical optmizer require a starting guess, here I use the start-guess (0.022, 0.022, 0.022) 
-res = minimize(cost_function, [1.885, 198, 94, 0.0554, 0.0059, 0.1262, 0.00005, 0.4543, 0.185, 0.022, 0.00876, 0.0021, 0.08, 0.00026, 0.014, 0.9, 15], method='Powell', args = (y_obs, )) #lägg in constraints här 
+res = minimize(cost_function, [1.885, 198, 94, 0.0554, 0.0059, 0.1262, 0.00005, 0.4543, 0.185, 0.022, 0.00876, 0.0021, 0.08, 0.00026, 0.014, 0.9, 15], method='Powell', args = (cG_vec, cI_vec)) #lägg in constraints här 
 """loop för olika rates/startgissningar"""  
  
 

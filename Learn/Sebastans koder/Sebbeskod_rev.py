@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 def model(t, x, k):
     k1, k2 = k
     
-    dx1 = -k1*x[0] + k2*x[1] 
+    dx1 = -np.exp(k1)*x[0] + k2*x[1] # kostandsfunktionen lättare, kommer få ut log k1, startgissningar på log skalan
     dx2 = k1*x[0] - k2*x[1]
     
     return [dx1, dx2]
@@ -131,7 +131,7 @@ print(res.fun)
 
 
 # Plotting observed data at time-points 0.1, ..., 2.0 (we have 50 data-points)
-print("y = {}, t = {}".format(y_obs1, t_vec))
+#print("y = {}, t = {}".format(y_obs1, t_vec))
 plot1 = plt.figure(1)
 plt.plot(t_vec, y_obs1)
 plt.title("Simulated data and model1")
