@@ -16,8 +16,6 @@ problem = {
 # Generate samples
 param_values = saltelli.sample(problem, 1000, calc_second_order=False)
 
-print(param_values.shape)
-
 # Run model (example)
 Y = Ishigami.evaluate(param_values)
 
