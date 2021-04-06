@@ -7,8 +7,8 @@ import pandas as pd
 import os
 
 # get data 
-data_G = pd.read_csv ("data_horses/Glukos_FFaraber.csv", sep=';')
-data_I = pd.read_csv ("data_horses/Insulin_FFaraber.csv", sep=';')
+data_G = pd.read_csv ("data_horses/Glukos_new_FFaraber.csv", sep=';')
+data_I = pd.read_csv ("data_horses/Insulin_new_FFaraber.csv", sep=';')
 data_G = data_G.sort_values(by=['tid'])
 
 
