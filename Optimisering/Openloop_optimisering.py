@@ -10,6 +10,7 @@ import os
 data_G = pd.read_csv ("data_horses/Glukos_new_FFaraber.csv", sep=';')
 data_I = pd.read_csv ("data_horses/Insulin_new_FFaraber.csv", sep=';')
 data_G = data_G.sort_values(by=['tid'])
+data_I = data_G.sort_values(by=['tid'])
 
 
 global tG_vec 
