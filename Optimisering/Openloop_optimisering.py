@@ -122,12 +122,12 @@ def cost_function(b, yG_vec, yI_vec):
             i+= 100  """   
 
     # Step 3: Calculate cost-function  
-    squared_sum = np.sum((yG_model - cG_obs)**2+(yI_model -  cI_obs)**2) 
+    squared_sum = np.sum((yG_model - yG_vec)**2+(yI_model -  yI_vec)**2) 
 
     return squared_sum 
 
 
-# Note, a numerical optmizer require a starting guess, here I use the start-guess (0.022, 0.022, 0.022)
+# Note, a numerical optmizer require a starting guess for the parameters
 start_values = [1.885, 198, 94, 0.0554, 0.0059, 0.1262, 0.00005, 0.4543, 0.185, 0.022, 0.00876, 0.0021, 0.08, 0.00026, 0.014, 0.3, 0.9, 15]
 res = minimize(cost_function, start_values, method='Powell', args = (cG_vec, cI_vec)) #lägg in constraints här 
 """loop för olika rates/startgissningar"""  
@@ -140,7 +140,8 @@ print("Value of cost-function")
 print(res.fun) 
 
 # Plotting observed data at time-points 0.1, ..., 2.0 (we have 50 data-points) 
-plt.plot(t_vec, y_obs) 
+plt.plot(tI_vec, cI_vec) 
+plt.plot(tG_vec, cG_vec)
 plt.title("Simulated data and model") 
 #plt.plot(t_vec, y_model) 
 plt.show() 
