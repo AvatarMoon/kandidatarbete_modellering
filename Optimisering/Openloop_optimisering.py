@@ -1,6 +1,7 @@
 import numpy as np 
 import scipy.integrate as integrate 
-from scipy.optimize import minimize 
+from scipy.optimize import minimize
+from scipy.optimize import Bounds
 import matplotlib.pyplot as plt 
 import math 
 import pandas as pd
@@ -92,34 +93,51 @@ def cost_function(b, yG_vec, yI_vec):
     # Step 1: Solve ODE-system  
     solG = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(b, ), t_eval=tG_vec) 
     solI = integrate.solve_ivp(open_loop, time_span_I, x0, method="LSODA", args=(b, ), t_eval=tI_vec) 
-    """class scipy.optimize.Bounds(lb, ub, keep_feasible=False) # vart ska denna in och hur sätter man olika bounds för olika konc. 
-    """ 
+    
+    sol_qual = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(b, ))
 
-    # Step 2: Extract G and I model concentrations 
-    global yG_model
-    global yI_model
+    G_model = sol_qual.y[0]
+    I_model = sol_qual.y[1]
+    E_model = sol_qual.y[2]
+    C_model = sol_qual.y[3]
+    M_model = sol_qual.y[4]
+
+    
+    # Step 2: Extract G and I model concentrations at t-points tG_vec and tI_vec
     yG_model = solG.y[0] 
     yI_model = solI.y[1] 
 
-    # for sats, om > värde, addera ngt till kostnadsfkn 
-    """ range_G = [4.5, 11] # mM 
+    # for sats, om > värde, addera ngt till kostnadsfkn squared_sum
+    squared_sum = 0.0
+
+    range_G = [4.5, 11] # mM 
     range_I = [38, 400] #pM 
     range_E = [28.68, 47.04] # pM 
     range_C = [0, 8] # mmol 
     range_M = [2, 13] # mmol 
-   
 
-    for i in res: 
-        if G > 11: 
-            i += 100 
-        elif I > 400: 
-            i += 100 
-        elif E > 47.04: 
-            i+= 100 
-        elif M > 13: 
-            i+= 100 
-        elif H > 200: 
-            i+= 100  """   
+    if G_model > np.max(range_G):
+       squared_sum += 100
+    if G_model < np.min(range_G):
+        squared_sum += 100
+    if I_model > np.max(range_I):
+       squared_sum += 100
+    if I_model < np.min(range_I):
+        squared_sum += 100
+    if E_model > np.max(range_E):
+       squared_sum += 100
+    if E_model < np.min(range_E):
+        squared_sum += 100
+    if C_model > np.max(range_C):
+       squared_sum += 100
+    if C_model < np.min(range_C):
+        squared_sum += 100
+    if M_model > np.max(range_M):
+       squared_sum += 100
+    if M_model < np.min(range_M):
+        squared_sum += 100
+    
+
 
     # Step 3: Calculate cost-function  
     squared_sum = np.sum((yG_model - yG_vec)**2+(yI_model -  yI_vec)**2) 
@@ -129,8 +147,11 @@ def cost_function(b, yG_vec, yI_vec):
 
 # Note, a numerical optmizer require a starting guess for the parameters
 start_values = [1.885, 198, 94, 0.0554, 0.0059, 0.1262, 0.00005, 0.4543, 0.185, 0.022, 0.00876, 0.0021, 0.08, 0.00026, 0.014, 0.3, 0.9, 15]
-res = minimize(cost_function, start_values, method='Powell', args = (cG_vec, cI_vec)) #lägg in constraints här 
-"""loop för olika rates/startgissningar"""  
+bound_low = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0.1]
+bound_upp = [np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf]
+bounds = Bounds(bound_low, bound_upp)
+res = minimize(cost_function, start_values, method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
+ 
  
 
 # Print some statistics  
