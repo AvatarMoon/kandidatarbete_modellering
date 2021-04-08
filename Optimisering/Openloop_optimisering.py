@@ -14,42 +14,11 @@ data_G = data_G.sort_values(by=['tid'])
 data_I = data_G.sort_values(by=['tid'])
 
 
-global tG_vec 
-global tI_vec 
-
 # Extract times- and concentration-vectors
 tG_vec = data_G['tid'].values
 tI_vec = data_I['tid'].values  
 cG_vec = data_G['konc'].values
 cI_vec = data_I['konc'].values 
-
-
-"""
-# Tillfälliga parametrar, ev startgissningar, kan räknas om med ekv human vs horses
-# Värdena är för människa från closed loop, ska dessa göras om till log? 
-c0 = 1.8854 
-c1 = 198 
-c2 = 94 
-c3 = 0.0554 
-b1 = 0.0059 
-b2 = 0.1262 
-b3 = 0.00005 
-b4 = 0.4543 
-b5 = 0.185 
-# b6= 0.8 tror inte de här är med i någon ODE
-# b7= 0.8 
-# b8= 0.8 
-# b9 = 0.8 
-b10 = 0.022 
-b21 = 0.00876 
-b22 = 0.0021 
-b23 = 0.08 
-b25 = 0.00026 
-b27 = 0.014 
-b100 = 0.3 
-f = 0.9 
-v = 15 
-"""
 
 Ge = 5 # konstant?
 
@@ -102,12 +71,11 @@ def cost_function(b, yG_vec, yI_vec):
     C_model = sol_qual.y[3]
     M_model = sol_qual.y[4]
 
-    
     # Step 2: Extract G and I model concentrations at t-points tG_vec and tI_vec
     yG_model = solG.y[0] 
     yI_model = solI.y[1] 
 
-    # for sats, om > värde, addera ngt till kostnadsfkn squared_sum
+    # if-sats, om något modellvärde > värde, addera ngt till kostnadsfkn squared_sum
     squared_sum = 0.0
 
     range_G = [4.5, 11] # mM 
@@ -116,25 +84,25 @@ def cost_function(b, yG_vec, yI_vec):
     range_C = [0, 8] # mmol 
     range_M = [2, 13] # mmol 
 
-    if G_model > np.max(range_G):
+    if any(G_model) > np.max(range_G):
        squared_sum += 100
-    if G_model < np.min(range_G):
+    if any(G_model) < np.min(range_G):
         squared_sum += 100
-    if I_model > np.max(range_I):
+    if any(I_model) > np.max(range_I):
        squared_sum += 100
-    if I_model < np.min(range_I):
+    if any(I_model) < np.min(range_I):
         squared_sum += 100
-    if E_model > np.max(range_E):
+    if any(E_model) > np.max(range_E):
        squared_sum += 100
-    if E_model < np.min(range_E):
+    if any(E_model) < np.min(range_E):
         squared_sum += 100
-    if C_model > np.max(range_C):
+    if any(C_model) > np.max(range_C):
        squared_sum += 100
-    if C_model < np.min(range_C):
+    if any(C_model) < np.min(range_C):
         squared_sum += 100
-    if M_model > np.max(range_M):
+    if any(M_model) > np.max(range_M):
        squared_sum += 100
-    if M_model < np.min(range_M):
+    if any(M_model) < np.min(range_M):
         squared_sum += 100
     
 
@@ -147,13 +115,11 @@ def cost_function(b, yG_vec, yI_vec):
 
 # Note, a numerical optmizer require a starting guess for the parameters
 start_values = [1.885, 198, 94, 0.0554, 0.0059, 0.1262, 0.00005, 0.4543, 0.185, 0.022, 0.00876, 0.0021, 0.08, 0.00026, 0.014, 0.3, 0.9, 15]
-bound_low = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0.1]
-bound_upp = [np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf]
+bound_low = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0.1])
+bound_upp = np.repeat(np.inf, len(start_values))
 bounds = Bounds(bound_low, bound_upp)
 res = minimize(cost_function, start_values, method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
  
- 
-
 # Print some statistics  
 print("Optimal value found via Powells-method:") 
 print(res.x) 
