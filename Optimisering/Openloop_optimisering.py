@@ -7,6 +7,9 @@ import math
 import pandas as pd
 import os
 
+# [Mörkblå, Gul, Ockraröd, Mörkgrön ,Olivgrön ,Ljusbeige (dålig), Ljusgult (dålig), Gul ]
+cb_palette2 = ["#F4E3AF", "#F1CB6F", "#E16F3B", "#2D4E63", "#899964", "#F4E3AF", "#F1CB6F", "#E16F3B"]
+
 # get data 
 data_G = pd.read_csv ("data_horses/Glukos_new_FFaraber.csv", sep=';')
 data_I = pd.read_csv ("data_horses/Insulin_new_FFaraber.csv", sep=';')
@@ -59,10 +62,10 @@ def cost_function(b, yG_vec, yI_vec):
     time_span_G = [tG_vec[0], tG_vec[-1]] #vad sätter vi här när det finns två olika?
     time_span_I = [tI_vec[0], tI_vec[-1]]
 
-    # Step 1: Solve ODE-system  
-    solG = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(b, ), t_eval=tG_vec) 
-    solI = integrate.solve_ivp(open_loop, time_span_I, x0, method="LSODA", args=(b, ), t_eval=tI_vec) 
+    # Step 1: Solve ODE-system at points tG_vec
+    sol = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(b, ), t_eval=tG_vec) 
     
+    # step 2: Solve ODE-system qualitative
     sol_qual = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(b, ))
 
     G_model = sol_qual.y[0]
@@ -71,11 +74,11 @@ def cost_function(b, yG_vec, yI_vec):
     C_model = sol_qual.y[3]
     M_model = sol_qual.y[4]
 
-    # Step 2: Extract G and I model concentrations at t-points tG_vec and tI_vec
-    yG_model = solG.y[0] 
-    yI_model = solI.y[1] 
+    # Step 3: Extract G and I model concentrations at t-points tG_vec and tI_vec
+    yG_model = sol.y[0] 
+    yI_model = sol.y[1] 
 
-    # if-sats, om något modellvärde > värde, addera ngt till kostnadsfkn squared_sum
+    # Step 4 : Build bounds for the concentrations and punnish the cost-func. if they go cross the bounds
     squared_sum = 0.0
 
     range_G = [4.5, 11] # mM 
@@ -106,8 +109,7 @@ def cost_function(b, yG_vec, yI_vec):
         squared_sum += 100
     
 
-
-    # Step 3: Calculate cost-function  
+    # Step 5: Calculate cost-function  
     squared_sum = np.sum((yG_model - yG_vec)**2+(yI_model -  yI_vec)**2) 
 
     return squared_sum 
@@ -127,8 +129,19 @@ print("Value of cost-function")
 print(res.fun) 
 
 # Plotting observed data at time-points 0.1, ..., 2.0 (we have 50 data-points) 
-plt.plot(tI_vec, cI_vec) 
-plt.plot(tG_vec, cG_vec)
+line1 = plt.plot(tI_vec, cI_vec, color = cb_palette2[0]) 
+line2 = plt.plot(tG_vec, cG_vec, color = cb_palette2[2])
+line3 = plt.plot(tG_vec, data_I, color = cb_palette2[4])
+line4 = plt.plot(tG_vec, data_G, color = cb_palette2[1])
+plt.legend((line1, line2, line3, line4), ('Koncentration insulin model', 'Koncentration glucose model', 'Data glucose', 'Data insulin'), loc = 'upper left')
 plt.title("Simulated data and model") 
-#plt.plot(t_vec, y_model) 
-plt.show() 
+
+# Write the result to file
+path_result_dir = "Optimisering/Bilder"
+# Check if directory exists
+if not os.path.isdir(path_result_dir):
+    os.mkdir(path_result_dir)  # Create a new directory if not existing
+path_fig = path_result_dir + "/model+data.pdf"
+print("path_fig = {}".format(path_fig))
+plt.savefig(path_fig)
+
