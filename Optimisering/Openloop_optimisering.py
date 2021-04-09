@@ -59,8 +59,7 @@ def cost_function(b, yG_vec, yI_vec):
 
     # Model parameters   
     x0 = [5, 60, 34, 3, 2.5, 200]  # initial closed loop   
-    time_span_G = [tG_vec[0], tG_vec[-1]] #vad sätter vi här när det finns två olika?
-    time_span_I = [tI_vec[0], tI_vec[-1]]
+    time_span_G = [tG_vec[0], tG_vec[-1]] 
 
     # Step 1: Solve ODE-system at points tG_vec
     sol = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(b, ), t_eval=tG_vec) 
@@ -128,13 +127,13 @@ print(res.x)
 print("Value of cost-function") 
 print(res.fun) 
 
-# Plotting observed data at time-points 0.1, ..., 2.0 (we have 50 data-points) 
-line1 = plt.plot(tI_vec, cI_vec, color = cb_palette2[0]) 
-line2 = plt.plot(tG_vec, cG_vec, color = cb_palette2[2])
-line3 = plt.plot(tG_vec, data_I, color = cb_palette2[4])
-line4 = plt.plot(tG_vec, data_G, color = cb_palette2[1])
-plt.legend((line1, line2, line3, line4), ('Koncentration insulin model', 'Koncentration glucose model', 'Data glucose', 'Data insulin'), loc = 'upper left')
-plt.title("Simulated data and model") 
+# Plotting observed data at time-points 
+data1 = plt.plot(tI_vec, cI_vec, color = cb_palette2[0]) 
+data2 = plt.plot(tG_vec, cG_vec, color = cb_palette2[2])
+model1 =
+model2 = 
+plt.legend(['Data insulin', 'Data glucose'], loc = 'upper left')
+plt.title("Data") 
 
 # Write the result to file
 path_result_dir = "Optimisering/Bilder"
