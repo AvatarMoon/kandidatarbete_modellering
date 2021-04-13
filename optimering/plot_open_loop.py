@@ -7,9 +7,6 @@ import scipy.integrate as integrate
 # Colour-blind friendly palette (use nice colors)
 cb_palette1 = ["#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
 
-# [Mörkblå, Gul, Ockraröd, Mörkgrön ,Olivgrön ,Ljusbeige (dålig), Ljusgult (dålig), Gul ]
-cb_palette2 = ["#F4E3AF", "#F1CB6F", "#E16F3B", "#2D4E63", "#899964", "#F4E3AF", "#F1CB6F", "#E16F3B"]
-
 # Hämta data
 data_G = pd.read_csv ('data_horses\Glukos_new_FFaraber.csv', sep=';')
 data_I = pd.read_csv ('data_horses\insulin_new_FFaraber.csv', sep=';')
@@ -96,11 +93,11 @@ yM2_coordinates = [13,13]  # mmol (human)
 # plotta glukos
 lw = 2.0
 plot1 = plt.figure(1)
-line1, = plt.plot(xG_coordinates, yG1_coordinates, linestyle=":", linewidth=lw, color=cb_palette2[1])
-line2, = plt.plot(xG_coordinates, yG2_coordinates, linestyle=":", linewidth=lw, color=cb_palette2[3])
-line3, = plt.plot(data_G['tid'].values, data_G['konc'].values, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette2[2])
-line4, = plt.plot(data_G['tid'].values, G_model, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette2[7])
-plt.legend((line1, line2, line3, line4), ("Lägsta gräns", "Högsta gräns", "Data","modell"))
+line1, = plt.plot(xG_coordinates, yG1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xG_coordinates, yG2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(data_G['tid'].values, data_G['konc'].values, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[7])
+line4, = plt.plot(data_G['tid'].values, G_model, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[5])
+plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glucose in plasma")
 
@@ -117,11 +114,11 @@ plt.savefig(path_fig)
 # plotta insulin
 lw = 2.0
 plot1 = plt.figure(2)
-line1, = plt.plot(xI_coordinates, yI1_coordinates, linestyle=":", linewidth=lw, color=cb_palette2[1])
-line2, = plt.plot(xI_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, color=cb_palette2[3])
-line3, = plt.plot(data_I['tid'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette2[4])
-line4, = plt.plot(data_I['tid'].values, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette2[7])
-plt.legend((line1, line2, line3, line4), ("Lägsta gräns", "Högsta gräns", "Data","modell"))
+line1, = plt.plot(xI_coordinates, yI1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[6])
+line2, = plt.plot(xI_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(data_I['tid'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[7])
+line4, = plt.plot(data_I['tid'].values, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
+plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Insulin koncentration", fontsize=12)
 plt.title("Insulin in plasma")
 
@@ -138,10 +135,10 @@ plt.savefig(path_fig)
 # plotta glucagon
 lw = 2.0
 plot1 = plt.figure(3)
-line1, = plt.plot(xE_coordinates, yE1_coordinates, linestyle=":", linewidth=lw, color=cb_palette2[1])
-line2, = plt.plot(xE_coordinates, yE2_coordinates, linestyle=":", linewidth=lw, color=cb_palette2[3])
-line3, = plt.plot(data_G['tid'].values, E_model, label = 'Glucagon', linestyle="-", linewidth=lw, color=cb_palette2[4]) # Lägga till modellen
-plt.legend((line1, line2, line3), ("Lägsta gräns", "Högsta gräns", "Modell"))
+line1, = plt.plot(xE_coordinates, yE1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xE_coordinates, yE2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(data_G['tid'].values, E_model, label = 'Glucagon', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glucagon koncentration", fontsize=12)
 plt.title("Glucagon i plasman")
 
@@ -158,10 +155,10 @@ plt.savefig(path_fig)
 # plotta Glukos i lever 
 lw = 2.0
 plot1 = plt.figure(4)
-line1, = plt.plot(xC_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette2[1])
-line2, = plt.plot(xC_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette2[3])
-line3, = plt.plot(data_G['tid'].values, C_model, label = 'Glukos i levern', linestyle="-", linewidth=lw, color=cb_palette2[6]) # Lägga till modellen
-plt.legend((line1, line2, line3), ("Lägsta gräns", "Högsta gräns", "Modell"))
+line1, = plt.plot(xC_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[6])
+line2, = plt.plot(xC_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(data_G['tid'].values, C_model, label = 'Glukos i levern', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glukos i levern")
 
@@ -178,10 +175,10 @@ plt.savefig(path_fig)
 # plotta Glukos i muskeln 
 lw = 2.0
 plot1 = plt.figure(5)
-line1, = plt.plot(xM_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette2[1])
-line2, = plt.plot(xM_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette2[3])
-line3, = plt.plot(data_G['tid'].values, M_model, label = 'Glukos i muskeln', linestyle="-", linewidth=lw, color=cb_palette2[7]) # Lägga till modellen
-plt.legend((line1, line2, line3), ("Lägsta gräns", "Högsta gräns", "Modell"))
+line1, = plt.plot(xM_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[6])
+line2, = plt.plot(xM_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(data_G['tid'].values, M_model, label = 'Glukos i muskeln', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glukos i muskeln")
 plt.show()
