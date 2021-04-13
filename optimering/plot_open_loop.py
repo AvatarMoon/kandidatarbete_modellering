@@ -80,12 +80,12 @@ xE_coordinates = [tG_vec[0],tG_vec[-1]]
 yE1_coordinates = [28.68,28.68]  #pM (human)
 yE2_coordinates = [47.04,47.04]  #pM (human)
  
- # Constrains Glukos i lever (C)
+ # Constrains glukos i lever (C)
 xC_coordinates = [tG_vec[0],tG_vec[-1]] 
 yC1_coordinates = [0,0]  # mmol (human)
 yC2_coordinates = [8,8]  # mmol (human)
 
- # Constrains Glukos i muskel (M)
+ # Constrains glukos i muskel (M)
 xM_coordinates = [tG_vec[0],tG_vec[-1]] 
 yM1_coordinates = [2,2]    # mmol (human)
 yM2_coordinates = [13,13]  # mmol (human)
@@ -114,7 +114,7 @@ plt.savefig(path_fig)
 # plotta insulin
 lw = 2.0
 plot1 = plt.figure(2)
-line1, = plt.plot(xI_coordinates, yI1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[6])
+line1, = plt.plot(xI_coordinates, yI1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 line2, = plt.plot(xI_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(data_I['tid'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(data_I['tid'].values, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
@@ -132,15 +132,15 @@ path_fig = path_result_dir + "/plot_insulin.jpg"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
 
-# plotta glucagon
+# plotta glukagon
 lw = 2.0
 plot1 = plt.figure(3)
 line1, = plt.plot(xE_coordinates, yE1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 line2, = plt.plot(xE_coordinates, yE2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(data_G['tid'].values, E_model, label = 'Glucagon', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
 plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
-plt.xlabel("time", fontsize=12), plt.ylabel("Glucagon koncentration", fontsize=12)
-plt.title("Glucagon i plasman")
+plt.xlabel("time", fontsize=12), plt.ylabel("Glukagon koncentration", fontsize=12)
+plt.title("Glukagon i plasman")
 
 # Sparar figur i plot constrains, insulin
 # Write the result to file
@@ -148,14 +148,14 @@ path_result_dir = "optimering/Bilder/plot_constrains"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
-path_fig = path_result_dir + "/plot_glucagon.jpg"
+path_fig = path_result_dir + "/plot_glukagon.jpg"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
 
 # plotta Glukos i lever 
 lw = 2.0
 plot1 = plt.figure(4)
-line1, = plt.plot(xC_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[6])
+line1, = plt.plot(xC_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 line2, = plt.plot(xC_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(data_G['tid'].values, C_model, label = 'Glukos i levern', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
 plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
@@ -175,7 +175,7 @@ plt.savefig(path_fig)
 # plotta Glukos i muskeln 
 lw = 2.0
 plot1 = plt.figure(5)
-line1, = plt.plot(xM_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[6])
+line1, = plt.plot(xM_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 line2, = plt.plot(xM_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(data_G['tid'].values, M_model, label = 'Glukos i muskeln', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
 plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
@@ -192,3 +192,4 @@ if not os.path.isdir(path_result_dir):
 path_fig = path_result_dir + "/plot_glukosmuskeln.jpg"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
+plt.show()
