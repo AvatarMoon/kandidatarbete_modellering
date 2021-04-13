@@ -14,7 +14,7 @@ cb_palette2 = ["#F4E3AF", "#F1CB6F", "#E16F3B", "#2D4E63", "#899964", "#F4E3AF",
 data_G = pd.read_csv ("data_horses/Glukos_new_FFaraber.csv", sep=';')
 data_I = pd.read_csv ("data_horses/Insulin_new_FFaraber.csv", sep=';')
 data_G = data_G.sort_values(by=['tid'])
-data_I = data_G.sort_values(by=['tid'])
+data_I = data_I.sort_values(by=['tid'])
 
 
 # Extract times- and concentration-vectors
@@ -60,9 +60,13 @@ def cost_function(b, yG_vec, yI_vec):
     # Model parameters   
     x0 = [5, 60, 34, 3, 2.5, 200]  # initial closed loop   
     time_span_G = [tG_vec[0], tG_vec[-1]] 
+    time_span_I = [tI_vec[0], tI_vec[-1]] 
+    
 
     # Step 1: Solve ODE-system at points tG_vec
-    sol = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(b, ), t_eval=tG_vec) 
+    sol_G = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(b, ), t_eval=tG_vec) 
+    sol_I = integrate.solve_ivp(open_loop, time_span_I, x0, method="LSODA", args=(b, ), t_eval=tI_vec) 
+
     
     # step 2: Solve ODE-system qualitative
     sol_qual = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(b, ))
@@ -74,8 +78,8 @@ def cost_function(b, yG_vec, yI_vec):
     M_model = sol_qual.y[4]
 
     # Step 3: Extract G and I model concentrations at t-points tG_vec and tI_vec
-    yG_model = sol.y[0] 
-    yI_model = sol.y[1] 
+    yG_model = sol_G.y[0] 
+    yI_model = sol_I.y[1] 
 
     # Step 4 : Build bounds for the concentrations and punnish the cost-func. if they go cross the bounds
     squared_sum = 0.0
