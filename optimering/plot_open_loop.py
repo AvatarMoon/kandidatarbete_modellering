@@ -8,14 +8,16 @@ import scipy.integrate as integrate
 cb_palette1 = ["#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
 
 # Hämta data
-data_G = pd.read_csv ('data_horses\Glukos_new_FFaraber.csv', sep=';')
-data_I = pd.read_csv ('data_horses\insulin_new_FFaraber.csv', sep=';')
+data_G = pd.read_csv ('data_horses/Glukos_FFaraber.csv', sep=';')
+data_I = pd.read_csv ('data_horses/Insulin_FF_araber.csv', sep=';')
 data_G = data_G.sort_values(by = ['tid'])
 data_I = data_I.sort_values(by = ['tid'])
 
 # Tidsvektorer
 tG_vec = data_G['tid'].values
 tI_vec = data_I['tid'].values
+cG_vec = data_G['konc'].values
+cI_vec = data_I['conc'].values
 
 time_span_G = [tG_vec[0], tG_vec[-1]]
 time_span_I = [tI_vec[0], tI_vec[-1]]
@@ -93,6 +95,7 @@ yM2_coordinates = [13,13]  # mmol (human)
 # plotta glukos
 lw = 2.0
 plot1 = plt.figure(1)
+frame1 = plot1.add_axes([.1, .3, .8, .6])
 line1, = plt.plot(xG_coordinates, yG1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 line2, = plt.plot(xG_coordinates, yG2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(data_G['tid'].values, data_G['konc'].values, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[7])
@@ -100,6 +103,12 @@ line4, = plt.plot(data_G['tid'].values, G_model, label = 'Glukos', linestyle="-"
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glucose in plasma")
+
+# Residual plot for glucose
+difference = cG_vec - G_model
+frame2 = plot1.add_axes([.1, .1, .8, .2])
+plt.scatter(difference, G_model, s = 10 , color = cb_palette1[1])
+
 
 # Sparar figur i plot constrains, glukos
 # Write the result to file
@@ -113,7 +122,8 @@ plt.savefig(path_fig)
 
 # plotta insulin
 lw = 2.0
-plot1 = plt.figure(2)
+plot2 = plt.figure(2)
+frame3 = plot2.add_axes([.1, .3, .8, .6])
 line1, = plt.plot(xI_coordinates, yI1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[6])
 line2, = plt.plot(xI_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(data_I['tid'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[7])
@@ -121,6 +131,12 @@ line4, = plt.plot(data_I['tid'].values, I_model, label = 'Insulin', linestyle="-
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Insulin koncentration", fontsize=12)
 plt.title("Insulin in plasma")
+
+# Residual plot for insulin
+difference = cI_vec - I_model
+frame4 = plot2.add_axes([.1, .1, .8, .2])
+plt.scatter(difference, I_model, s = 10 , color = cb_palette1[1])
+
 
 # Sparar figur i plot constrains, insulin
 # Write the result to file
