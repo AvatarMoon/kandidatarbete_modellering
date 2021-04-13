@@ -17,7 +17,7 @@ def open_loop(t,x):
     # Concentrations in the model as input
     G, I, E, C, M, H = x
 
-    c = 0.1060
+    #c = 0.1060
     c0 = 1.8854
     c1 = 198
     c2 = 94

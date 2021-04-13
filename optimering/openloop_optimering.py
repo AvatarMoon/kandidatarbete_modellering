@@ -130,13 +130,13 @@ print(res.fun)
 # Plotting observed data at time-points 
 data1 = plt.plot(tI_vec, cI_vec, color = cb_palette2[0]) 
 data2 = plt.plot(tG_vec, cG_vec, color = cb_palette2[2])
-model1 =
-model2 = 
+# model1 =
+# model2 = 
 plt.legend(['Data insulin', 'Data glucose'], loc = 'upper left')
 plt.title("Data") 
 
 # Write the result to file
-path_result_dir = "Optimisering/Bilder"
+path_result_dir = "optimering/Bilder"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
