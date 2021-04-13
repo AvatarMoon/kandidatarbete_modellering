@@ -142,7 +142,7 @@ plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns")
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukagon koncentration", fontsize=12)
 plt.title("Glukagon i plasman")
 
-# Sparar figur i plot constrains, insulin
+# Sparar figur i plot constrains, glukagon
 # Write the result to file
 path_result_dir = "optimering/Bilder/plot_constrains"
 # Check if directory exists
@@ -162,7 +162,7 @@ plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns")
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glukos i levern")
 
-# Sparar figur i plot constrains, insulin
+# Sparar figur i plot constrains, glukos i levern
 # Write the result to file
 path_result_dir = "optimering/Bilder/plot_constrains"
 # Check if directory exists
@@ -183,7 +183,7 @@ plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glukos i muskeln")
 plt.show()
 
-# Sparar figur i plot constrains, insulin
+# Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
 path_result_dir = "optimering/Bilder/plot_constrains"
 # Check if directory exists
@@ -192,4 +192,3 @@ if not os.path.isdir(path_result_dir):
 path_fig = path_result_dir + "/plot_glukosmuskeln.jpg"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
-plt.show()
