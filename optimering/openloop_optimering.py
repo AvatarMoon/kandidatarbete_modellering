@@ -120,7 +120,7 @@ def cost_function(b, yG_vec, yI_vec):
 
 
 # Note, a numerical optmizer require a starting guess for the parameters
-start_values = [1.885, 198, 94, 0.0554, 0.0059, 0.1262, 0.00005, 0.4543, 0.185, 0.022, 0.00876, 0.0021, 0.08, 0.00026, 0.014, 0.3, 0.9, 15]
+start_values = [7.621, 800.505, 380.038, 2.24, 0.024, 0.510, 0.0002, 1.837, 0.748, 0.089, 0.035, 0.008, 0.323, 0.001, 0.057, 1.213, 3.64, 60.644]
 bound_low = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0.1])
 bound_upp = np.repeat(np.inf, len(start_values))
 bounds = Bounds(bound_low, bound_upp)
