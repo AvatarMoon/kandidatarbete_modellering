@@ -59,7 +59,7 @@ def open_loop(t,x,b):
 def cost_function(b, yG_vec, yI_vec): 
 
     # Model parameters   
-    x0 = [5, 60, 34, 3, 2.5, 200]  # initial closed loop   
+    x0 = [29, 67, 219, 19, 16, 1288]  # initial FF träning   
     time_span_G = [tG_vec[0], tG_vec[-1]] 
     time_span_I = [tI_vec[0], tI_vec[-1]] 
     
@@ -85,11 +85,11 @@ def cost_function(b, yG_vec, yI_vec):
     # Step 4 : Build bounds for the concentrations and punnish the cost-func. if they go cross the bounds
     squared_sum = 0.0
 
-    range_G = [4.5, 11] # mM 
-    range_I = [38, 400] #pM 
-    range_E = [28.68, 47.04] # pM 
-    range_C = [0, 8] # mmol 
-    range_M = [2, 13] # mmol 
+    range_G = [0, 50] # mM 
+    range_I = [0, 5000] #pM 
+    range_E = [0, 500] # pM 
+    range_C = [0, 100] # mmol 
+    range_M = [0, 140] # mmol 
 
     if any(G_model) > np.max(range_G):
        squared_sum += 100
