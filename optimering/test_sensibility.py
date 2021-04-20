@@ -64,4 +64,4 @@ S = sensitivity(start_values, t_vec, x0)
 fisher = 2*S*np.transpose(S)
 
 print(S)
-print(fisher)
+print

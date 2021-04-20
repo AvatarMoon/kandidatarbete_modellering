@@ -12,17 +12,17 @@ import lhsmdu
 cb_palette2 = ["#F4E3AF", "#F1CB6F", "#E16F3B", "#2D4E63", "#899964", "#F4E3AF", "#F1CB6F", "#E16F3B"]
 
 # get data 
-data_G = pd.read_csv ("data_horses/Glukos_new_FFaraber.csv", sep=';')
-data_I = pd.read_csv ("data_horses/Insulin_new_FF_araber.csv", sep=';')
-data_G = data_G.sort_values(by=['min'])
-data_I = data_I.sort_values(by=['min'])
+data_G = pd.read_csv ("data_horses/glukos_FF_training.csv", sep=';')
+data_I = pd.read_csv ("data_horses/insulin_FF_training.csv", sep=';')
+data_G = data_G.sort_values(by=['tid'])
+data_I = data_I.sort_values(by=['tid'])
 
 
 # Extract times- and concentration-vectors
-tG_vec = data_G['min'].values
-tI_vec = data_I['min'].values  
-cG_vec = data_G['g/l'].values
-cI_vec = data_I['mU/l'].values 
+tG_vec = data_G['tid'].values
+tI_vec = data_I['tid'].values  
+cG_vec = data_G['conc'].values
+cI_vec = data_I['conc'].values 
 
 Ge = 5 # konstant?
 
