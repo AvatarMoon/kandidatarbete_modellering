@@ -41,9 +41,10 @@ start_values = np.array([1.885, 198, 94, 0.0554, 0.0059, 0.1262, 0.00005, 0.4543
 
 def sensitivity(b,t,x):
     h = np.sqrt(np.finfo(np.float).eps) # Maskintoleransen, vår steglängd för finita differen 
-    n_par = len(b)
+    b_par = len(b)
     t_len = len(t)
-    S = np.zeros([len(x), n_par, t_len])
+    # Sensitivity analysis for each time step
+    S = np.zeros([b_par, t_len * len(x)])
     time_span = [t[0], t[-1]]
 
     for n in range(len(b)):
@@ -55,13 +56,15 @@ def sensitivity(b,t,x):
         Sol_high = integrate.solve_ivp(open_loop, time_span, x, method='LSODA', args=(b1, ), t_eval = t)
         Sol_low = integrate.solve_ivp(open_loop, time_span, x, method='LSODA', args=(b2, ), t_eval= t)
         
-        for m in range(len(x)):
-            S[m, n, 0:t_len] = (Sol_high.y[m]-Sol_low.y[m]) / (2 * h) 
+        Sol_diff = (Sol_high.y-Sol_low.y)/(2*h)
+
+        S[n,:] = Sol_diff.reshape(t_len*len(x))
+
     return S
 
 S = sensitivity(start_values, t_vec, x0)
 
-fisher = 2*S*np.transpose(S)
+fisher = 2 * S @ S.transpose()
 
-print(S)
-print
+print(S.shape, fisher.shape)
+print(fisher)
