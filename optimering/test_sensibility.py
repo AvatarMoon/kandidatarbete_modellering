@@ -64,7 +64,20 @@ def sensitivity(b,t,x):
 
 S = sensitivity(start_values, t_vec, x0)
 
-fisher = 2 * S @ S.transpose()
+# Fisher matrix to make the covariance matrix
+Fisher = 2 * S @ S.transpose()
 
-print(S.shape, fisher.shape)
-print(fisher)
+print('Shape of S- and fisher matrix')
+print(S.shape, Fisher.shape)
+
+cov_mat = Fisher.transpose()
+
+# Identification of the parameters
+d_cov = np.diag(cov_mat)
+
+var_coeff = np.square(d_cov)/start_values
+
+print('Identification for each parameters')
+print(var_coeff)
+
+
