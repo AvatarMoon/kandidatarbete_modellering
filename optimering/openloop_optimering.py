@@ -14,13 +14,13 @@ cb_palette2 = ["#F4E3AF", "#F1CB6F", "#E16F3B", "#2D4E63", "#899964", "#F4E3AF",
 # get data 
 data_G = pd.read_csv ("data_horses/glukos_FF_training.csv", sep=';')
 data_I = pd.read_csv ("data_horses/insulin_FF_training.csv", sep=';')
-data_G = data_G.sort_values(by=['tid'])
-data_I = data_I.sort_values(by=['tid'])
+data_G = data_G.sort_values(by=['time'])
+data_I = data_I.sort_values(by=['time'])
 
 
 # Extract times- and concentration-vectors
-tG_vec = data_G['tid'].values
-tI_vec = data_I['tid'].values  
+tG_vec = data_G['time'].values
+tI_vec = data_I['time'].values  
 cG_vec = data_G['conc'].values
 cI_vec = data_I['conc'].values 
 
@@ -118,19 +118,54 @@ def cost_function(b, yG_vec, yI_vec):
 
     return squared_sum 
 
+## Hypercube set up
+randSeed = 2 # random number of choice
+lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
+start = np.array(lhsmdu.sample(18, 4)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
-# Note, a numerical optmizer require a starting guess for the parameters
-start_values = [7.621, 800.505, 380.038, 2.24, 0.024, 0.510, 0.0002, 1.837, 0.748, 0.089, 0.035, 0.008, 0.323, 0.001, 0.057, 1.213, 3.64, 60.644]
+para, samples = start.shape
+
+## intervals for the parameters
+para_int = [0, 500]
+
+minimum = (np.inf, None)
+
+# Bounds for the model
 bound_low = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0.1])
-bound_upp = np.repeat(np.inf, len(start_values))
+bound_upp = np.repeat(np.inf, para)
 bounds = Bounds(bound_low, bound_upp)
-res = minimize(cost_function, start_values, method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
- 
+
+for n in range(samples):
+    c0 = start[0,n] * para_int[1]
+    c1 = start[1,n] * para_int[1]
+    c2 = start[2,n] * para_int[1]
+    c3 = start[3,n] * para_int[1]
+    b1 = start[4,n] * para_int[1]
+    b2 = start[5,n] * para_int[1]
+    b3 = start[6,n] * para_int[1]
+    b4 = start[7,n] * para_int[1]
+    b5 = start[8,n] * para_int[1]
+    b10 = start[9,n] * para_int[1]
+    b21 = start[10,n] * para_int[1]
+    b22 = start[11,n] * para_int[1]
+    b23 = start[12,n] * para_int[1]
+    b25 = start[13,n] * para_int[1]
+    b27 = start[14,n] * para_int[1]
+    b100 = start[15,n] * para_int[1]
+    f = start[16,n] * para_int[1]
+    v = start[17,n] * para_int[1]
+    
+    res = minimize(cost_function, [c0, c1, c2, c3, b1, b2, b3, b4, b5, b10, b21, b22, b23, b25, b27, b100, f, v], method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
+
+    if res.fun < minimum[0]:
+        minimum = (res.fun, res.x)
+
+
 # Print some statistics  
 print("Optimal value found via Powells-method:") 
-print(res.x) 
+print(minimum[1]) 
 print("Value of cost-function") 
-print(res.fun) 
+print(minimum[0]) 
 
 # Plotting observed data at time-points 
 data1 = plt.plot(tI_vec, cI_vec, color = cb_palette2[0]) 

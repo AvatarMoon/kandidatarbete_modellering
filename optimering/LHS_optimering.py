@@ -36,11 +36,6 @@ t_vec = np.linspace(0.1, 2.0, num=50)
 np.random.seed(123)
 y_obs = simulate_model1(t_vec, 0.5)
 
-# Plotting observed data at time-points 0.1, ..., 2.0 (we have 50 data-points)
-plt.plot(t_vec, y_obs)
-plt.title("Simulated data")
-plt.show()
-
 """
     Cost-function for model1 which takes the model-parameters (k1, k2) and 
     observed data as input. 
@@ -63,28 +58,33 @@ def cost_function(k, y_obs):
 
     return squared_sum
 
+## Hypercube set up
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
-start = np.array(lhsmdu.sample(3, 20)) # Latin Hypercube Sampling with multi-dimensional uniformity
+start = np.array(lhsmdu.sample(2, 20)) # Latin Hypercube Sampling with multi-dimensional uniformity
 
-print(start)
+para, samples = start.shape
 
-res = minimize(cost_function, start, method='Powell', args = (y_obs, ))
+## intervals for the parameters
+para_int = [0, 5]
+
+# minimum = []
+
+minimum = (np.inf , None) 
+
+for n in range(samples):
+    k1 = start[0,n] * para_int[1]
+    k2 = start[1,n] * para_int[1]
+
+    res = minimize(cost_function, [k1, k2], method='Powell', args = (y_obs, ))
+
+    if res.fun < minimum[0] :
+        minimum = (res.fun, res.x)
+
 
 print("Optimal value found via Powells-method:")
-print(res.x)
+print(minimum[1])
 print("True values")
 print([1.0, 2.0])
 print("Value of cost-function")
-print(res.fun)
-plt.show()
-
-
-# fig = plt.figure()
-# ax = fig.gca()
-# ax.set_xticks(numpy.arange(0,1,0.1))
-# ax.set_yticks(numpy.arange(0,1,0.1))
-
-# plt.scatter(k[0], k[1], color='g', s = 30)
-# plt.grid()
-# plt.show()
+print(minimum[0])
