@@ -71,7 +71,7 @@ sol = integrate.solve_ivp(open_loop, time_span, x0, method="LSODA", t_eval=t_vec
 
 # Plot model
 
-ymodel = sol.y[0]
+ymodel = sol.y[1]
 plt.plot(t_vec, ymodel)
 plt.title('Open loop-model')
 plt.show()

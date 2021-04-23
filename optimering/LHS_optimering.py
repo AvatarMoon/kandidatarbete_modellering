@@ -68,8 +68,6 @@ para, samples = start.shape
 ## intervals for the parameters
 para_int = [0, 5]
 
-# minimum = []
-
 minimum = (np.inf , None) 
 
 for n in range(samples):

@@ -36,7 +36,7 @@ def open_loop(t,x,b):
     G, I, E, C, M, H = x 
 
     # Glucose plasma [1]  G0 closed loop = 5mM 
-    dG = f*b10*H/v + f*b5*C/v - b1*G - b3*I*G 
+    dG = f*b10*H/(v+0.1) + f*b5*C/(v+0.1) - b1*G - b3*I*G 
 
     # Insulin plasma [2]  60 pM 
     dI = b4*G - b2*I    
@@ -48,7 +48,7 @@ def open_loop(t,x,b):
     dC = b23 - b25*I - b22*G + b21*E - b5*C 
 
     # Glucose musle [5] M0 = 2.5 mmol 
-    dM = 0.1*(v/f)*b3*G*I - b27*M 
+    dM = 0.1*(v/(f+0.1))*b3*G*I - b27*M 
 
     # Glucos intake [6]  H0 = 200 mmol 
     dH = - b100*H*G 
@@ -135,6 +135,8 @@ bound_low = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0.1])
 bound_upp = np.repeat(np.inf, para)
 bounds = Bounds(bound_low, bound_upp)
 
+start_values = [7.621, 800.505, 380.038, 2.24, 0.024, 0.510, 0.0002, 1.837, 0.748, 0.089, 0.035, 0.008, 0.323, 0.001, 0.057, 1.213, 3.64, 60.644]
+
 for n in range(samples):
     c0 = start[0,n] * para_int[1]
     c1 = start[1,n] * para_int[1]
@@ -155,7 +157,7 @@ for n in range(samples):
     f = start[16,n] * para_int[1]
     v = start[17,n] * para_int[1]
     
-    res = minimize(cost_function, [c0, c1, c2, c3, b1, b2, b3, b4, b5, b10, b21, b22, b23, b25, b27, b100, f, v], method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
+    res = minimize(cost_function, start_values, method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
 
     if res.fun < minimum[0]:
         minimum = (res.fun, res.x)
