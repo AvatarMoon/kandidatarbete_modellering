@@ -43,11 +43,14 @@ def open_loop(t,x,b):
     # Insulin plasma [2]
     dI = -k4*I*C + k3*G
 
-    # GLucose liver [4]
+    # GLucose liver [3]
     dC = -k4*I*C + L
 
-    # Glucose musle [5]
+    # Glucose musle [4]
     dM = k2*G - k5*M
+
+    # Glucose intake [5]
+    dH = -k1*H
 
     return [dG, dI, dC, dM, dH]
 
