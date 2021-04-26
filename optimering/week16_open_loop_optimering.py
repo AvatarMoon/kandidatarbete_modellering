@@ -177,7 +177,7 @@ print(minimum[0])
 
 # Time span
 time_span = np.linspace(tG_vec[0], tG_vec[-1], len(G_model))
-xT_coodinates = [tG_vec[0],tG_vec[-1]]
+xT_coordinates = [tG_vec[0],tG_vec[-1]]
 
 # Constrains glukos (G)
 yG1_coordinates = [0,0] #mM (human)
