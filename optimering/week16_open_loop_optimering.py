@@ -26,7 +26,7 @@ cI_vec = data_I['conc'].values
 
 
 def open_loop(t,x,b): 
-    k1, k2, k3, k4, k5 = b
+    k1, k2, k3, k4, k5, k6 = b
      
     # Says that the concentrations can't be lower than zero 
     x[x < 0] = 0.0 
@@ -34,22 +34,25 @@ def open_loop(t,x,b):
     # Concentrations in the model as input 
     G, I, C, M, H = x 
 
-    L= 500 # Startvärde glukos i levern
+    L= 50 # Startvärde glukos i levern
 
     # Glucose plasma [1]
-    dG = k4*C*I + k1*H - k2*M
+    dG = k1*H + k3*C -k2*G*I
 
     # Insulin plasma [2]
-    dI = -k4*I*C + k3*G
+    dI = k6*G - k2*I*G
 
     # GLucose liver [3]
-    dC = -k4*C*I + L
+    dC = -k3*C 
 
     # Glucose musle [4]
-    dM = k2*G - k5*M
+    dM = k2*G*I - k4*M
 
     # Glucose intake [5]
     dH = -k1*H
+
+    # # Glucagon in plasma [6]
+    # dE = -k5*E + k4*M
 
     return [dG, dI, dC, dM, dH]
 
@@ -58,7 +61,7 @@ def open_loop(t,x,b):
 def cost_function(b, yG_vec, yI_vec): 
 
     # Start concentration, timespan   
-    x0 = [60, 5, 34, 3, 70]  # G, I, C, M, H 
+    x0 = [60, 3, 10000, 2, 70]  # G, I, C, M, H, E 
     time_span_G = [tG_vec[0], tG_vec[-1]] 
     time_span_I = [tI_vec[0], tI_vec[-1]] 
     
@@ -73,9 +76,10 @@ def cost_function(b, yG_vec, yI_vec):
 
     G_model = sol_qual.y[0]
     I_model = sol_qual.y[1]
-    C_model = sol_qual.y[2]
-    M_model = sol_qual.y[3]
-    H_model = sol_qual.y[4]
+    C_model = sol_qual.y[1]
+    M_model = sol_qual.y[2]
+    H_model = sol_qual.y[3]
+    #E_model = sol_qual.y[5]
 
 
     # Step 3: Extract G and I model concentrations at t-points tG_vec and tI_vec
@@ -85,34 +89,39 @@ def cost_function(b, yG_vec, yI_vec):
     # Step 4 : Build bounds for the concentrations and punnish the cost-func. if they go cross the bounds
     squared_sum = 0.0
 
-    range_G = [0, 50] # mM 
+    range_G = [0, 500] # mM 
     range_I = [0, 5000] #pM 
-    range_C = [0, 100] # mmol 
-    range_M = [0, 140] # mmol
+    range_C = [0, 10000] # mmol 
+    range_M = [0, 500] # mmol
     range_H = [0, 500] # mmol
+    # range_E = [0, 5]
 
-     
 
     if any(G_model) > np.max(range_G):
        squared_sum += 100
     if any(G_model) < np.min(range_G):
-        squared_sum += 100
+       squared_sum += 100
     if any(I_model) > np.max(range_I):
        squared_sum += 100
     if any(I_model) < np.min(range_I):
-        squared_sum += 100
+       squared_sum += 100
     if any(C_model) > np.max(range_C):
        squared_sum += 100
     if any(C_model) < np.min(range_C):
-        squared_sum += 100
+       squared_sum += 100
     if any(M_model) > np.max(range_M):
        squared_sum += 100
     if any(M_model) < np.min(range_M):
-        squared_sum += 100
+       squared_sum += 100
     if any(H_model) > np.max(range_H):
        squared_sum += 100
     if any(H_model) < np.min(range_H):
-        squared_sum += 100
+       squared_sum += 100
+    # if any(E_model) > np.max(range_E):
+    #    squared_sum += 100
+    # if any(E_model) < np.min(range_E):
+    #    squared_sum += 100
+    
     
 
     # Step 5: Calculate cost-function  
@@ -123,7 +132,7 @@ def cost_function(b, yG_vec, yI_vec):
 ## Hypercube set up
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
-start = np.array(lhsmdu.sample(5, 1)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
+start = np.array(lhsmdu.sample(6, 1)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
 para, samples = start.shape
 
@@ -133,7 +142,7 @@ para_int = [0, 500]
 minimum = (np.inf, None)
 
 # Bounds for the model
-bound_low = np.array([0, 0, 0, 0, 0])
+bound_low = np.array([0, 0, 0, 0, 0, 0])
 bound_upp = np.repeat(np.inf, para)
 bounds = Bounds(bound_low, bound_upp)
 
@@ -144,15 +153,17 @@ for n in range(samples):
     k3 = start[2,n] * para_int[1]
     k4 = start[3,n] * para_int[1]
     k5 = start[4,n] * para_int[1]
+    k6 = start[5,n] * para_int[1]
+
     
-    res = minimize(cost_function, [k1, k2, k3, k4, k5], method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
+    res = minimize(cost_function, [k1, k2, k3, k4, k5, k6], method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
 
     if res.fun < minimum[0]:
         minimum = (res.fun, res.x)
 
 # Hämta modellen
 # Start concentration, timespan   
-x0 = [60, 5, 34, 3, 70]  # G, I, C, M, H 
+x0 = [60, 5, 10000, 2, 70]  # G, I, C, M, H, E
 time_span_G = [tG_vec[0], tG_vec[-1]] 
 time_span_I = [tI_vec[0], tI_vec[-1]] 
 
@@ -165,6 +176,8 @@ I_model = sol_qual.y[1]
 C_model = sol_qual.y[2]
 M_model = sol_qual.y[3]
 H_model = sol_qual.y[4]
+# E_model = sol_qual.y[5]
+
 
 
 # Print some statistics  
@@ -198,6 +211,10 @@ yM2_coordinates = [140,140]  # mmol (human)
  # Constrains glucose intake (H)
 yH1_coordinates = [0,0]    
 yH2_coordinates = [500,500]  
+
+#  # Constrains glucagon in plasma (E)
+# yE1_coordinates = [0,0]    
+# yE2_coordinates = [500,500] 
 
 
 # plotta glukos
@@ -304,3 +321,24 @@ if not os.path.isdir(path_result_dir):
 path_fig = path_result_dir + "/plot_glukos_intag.jpg"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
+
+# # plotta Glucagon in plasma
+# lw = 2.0
+# plot1 = plt.figure(6)
+# line1, = plt.plot(xT_coordinates, yE1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+# line2, = plt.plot(xT_coordinates, yE2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+# line3, = plt.plot(time_span, E_model, label = 'Glukagon i plasma', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+# plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
+# plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
+# plt.title("Glukagon i plasma")
+
+
+# # Sparar figur i plot constrains, glukos i muskeln
+# # Write the result to file
+# path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+# # Check if directory exists
+# if not os.path.isdir(path_result_dir):
+#     os.mkdir(path_result_dir)  # Create a new directory if not existing
+# path_fig = path_result_dir + "/plot_glucagon_plasma.jpg"
+# print("path_fig = {}".format(path_fig))
+# plt.savefig(path_fig)
