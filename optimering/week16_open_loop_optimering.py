@@ -271,7 +271,7 @@ line3, = plt.plot(time_span, M_model, label = 'Glukos i muskeln', linestyle="-",
 plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glukos i muskeln")
-plt.show()
+
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
@@ -293,7 +293,7 @@ line3, = plt.plot(time_span, H_model, label = 'Glukos intag', linestyle="-", lin
 plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glukos intag")
-plt.show()
+
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
