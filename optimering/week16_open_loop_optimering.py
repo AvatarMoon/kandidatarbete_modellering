@@ -34,7 +34,6 @@ def open_loop(t,x,b):
     # Concentrations in the model as input 
     G, I, C, M, H = x 
 
-     
     L= 500 # Startvärde glukos i levern
 
     # Glucose plasma [1]
@@ -59,7 +58,7 @@ def open_loop(t,x,b):
 def cost_function(b, yG_vec, yI_vec): 
 
     # Start concentration, timespan   
-    x0 = [29, 67, 19, 16, 1288]  # G, I, C, M, H 
+    x0 = [60, 5, 34, 3, 70]  # G, I, C, M, H 
     time_span_G = [tG_vec[0], tG_vec[-1]] 
     time_span_I = [tI_vec[0], tI_vec[-1]] 
     
@@ -124,7 +123,7 @@ def cost_function(b, yG_vec, yI_vec):
 ## Hypercube set up
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
-start = np.array(lhsmdu.sample(5, 4)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
+start = np.array(lhsmdu.sample(5, 1)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
 para, samples = start.shape
 
@@ -153,7 +152,7 @@ for n in range(samples):
 
 # Hämta modellen
 # Start concentration, timespan   
-x0 = [29, 67, 19, 16, 1288]  # G, I, C, M, H 
+x0 = [60, 5, 34, 3, 70]  # G, I, C, M, H 
 time_span_G = [tG_vec[0], tG_vec[-1]] 
 time_span_I = [tI_vec[0], tI_vec[-1]] 
 
