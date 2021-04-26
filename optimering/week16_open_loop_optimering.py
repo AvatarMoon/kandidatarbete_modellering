@@ -38,13 +38,13 @@ def open_loop(t,x,b):
     L= 500 # Startvärde glukos i levern
 
     # Glucose plasma [1]
-    dG = k4*C/I + k1*H - k2*M
+    dG = k4*C*I + k1*H - k2*M
 
     # Insulin plasma [2]
     dI = -k4*I*C + k3*G
 
     # GLucose liver [3]
-    dC = -k4*C/I + L
+    dC = -k4*C*I + L
 
     # Glucose musle [4]
     dM = k2*G - k5*M
