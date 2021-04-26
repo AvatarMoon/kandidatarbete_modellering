@@ -117,6 +117,7 @@ def cost_function(b, yG_vec, yI_vec):
     squared_sum = np.sum((yG_model - yG_vec))**2+np.sum((yI_model -  yI_vec)**2) 
 
     return squared_sum 
+    
 
 ## Hypercube set up
 randSeed = 2 # random number of choice
