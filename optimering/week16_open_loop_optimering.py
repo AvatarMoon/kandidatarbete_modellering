@@ -116,7 +116,7 @@ def cost_function(b, yG_vec, yI_vec):
 ## Hypercube set up
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
-start = np.array(lhsmdu.sample(5, 100)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
+start = np.array(lhsmdu.sample(5, 10)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
 para, samples = start.shape
 
@@ -160,6 +160,7 @@ G_model = sol_qual.y[0]
 I_model = sol_qual.y[1]
 C_model = sol_qual.y[2]
 M_model = sol_qual.y[3]
+H_model = sol.qual.y[4]
 
 
 # Print some statistics  
@@ -170,35 +171,37 @@ print(minimum[0])
 
 # Plot model, data and constrains
 
+time_span = np.linspace(tG_vec[0], tG_vec[-1], len(G_model))
+xT_coodinates = [tG_vec[0],tG_vec[-1]]
+
 # Constrains glukos (G)
-xG_coordinates = [tG_vec[0],tG_vec[-1]]
 yG1_coordinates = [0,0] #mM (human)
 yG2_coordinates = [50,50]   #mM (human)
 
 # Constrains insulin (I)
-xI_coordinates = [tI_vec[0],tI_vec[-1]]
 yI1_coordinates = [0,0]   #pM (human)
 yI2_coordinates = [5000,5000] #pM (human)
  
- # Constrains glukos i lever (C)
-xC_coordinates = [tG_vec[0],tG_vec[-1]] 
+ # Constrains glukos i lever (C) 
 yC1_coordinates = [0,0]  # mmol (human)
 yC2_coordinates = [100,100]  # mmol (human)
 
- # Constrains glukos i muskel (M)
-xM_coordinates = [tG_vec[0],tG_vec[-1]] 
+ # Constrains glukos i muskel (M) 
 yM1_coordinates = [0,0]    # mmol (human)
 yM2_coordinates = [140,140]  # mmol (human)
 
-time_span = np.linspace()
+ # Constrains glukos i muskel (M)
+yH1_coordinates = [0,0]    
+yH2_coordinates = [500,500]  
+
 
 # plotta glukos
 lw = 2.0
 plot1 = plt.figure(1)
-line1, = plt.plot(xG_coordinates, yG1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xG_coordinates, yG2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line1, = plt.plot(xT_coodinates, yG1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coodinates, yG2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(data_G['time'].values, data_G['conc'].values, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[7])
-line4, = plt.plot(data_G['time'].values, G_model, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[5])
+line4, = plt.plot(time_span, G_model, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glucose in plasma")
@@ -216,10 +219,10 @@ plt.savefig(path_fig)
 # plotta insulin
 lw = 2.0
 plot1 = plt.figure(2)
-line1, = plt.plot(xI_coordinates, yI1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xI_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line1, = plt.plot(xT_coordinates, yI1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(data_I['time'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[7])
-line4, = plt.plot(data_I['time'].values, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
+line4, = plt.plot(time_span, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Insulin koncentration", fontsize=12)
 plt.title("Insulin in plasma")
@@ -237,9 +240,9 @@ plt.savefig(path_fig)
 # plotta Glukos i lever 
 lw = 2.0
 plot1 = plt.figure(3)
-line1, = plt.plot(xC_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xC_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
-line3, = plt.plot(data_G['time'].values, C_model, label = 'Glukos i levern', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+line1, = plt.plot(xT_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, C_model, label = 'Glukos i levern', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
 plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glukos i levern")
@@ -257,9 +260,9 @@ plt.savefig(path_fig)
 # plotta Glukos i muskeln 
 lw = 2.0
 plot1 = plt.figure(4)
-line1, = plt.plot(xM_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xM_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
-line3, = plt.plot(data_G['time'].values, M_model, label = 'Glukos i muskeln', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+line1, = plt.plot(xT_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, M_model, label = 'Glukos i muskeln', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
 plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glukos i muskeln")
@@ -272,5 +275,27 @@ path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
 path_fig = path_result_dir + "/plot_glukosmuskeln.jpg"
+print("path_fig = {}".format(path_fig))
+plt.savefig(path_fig)
+
+
+# plotta Glukos inktake 
+lw = 2.0
+plot1 = plt.figure(5)
+line1, = plt.plot(xT_coordinates, yH1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yH2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, H_model, label = 'Glukos intag', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
+plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
+plt.title("Glukos intag")
+plt.show()
+
+# Sparar figur i plot constrains, glukos i muskeln
+# Write the result to file
+path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+# Check if directory exists
+if not os.path.isdir(path_result_dir):
+    os.mkdir(path_result_dir)  # Create a new directory if not existing
+path_fig = path_result_dir + "/plot_glukos_intag.jpg"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
