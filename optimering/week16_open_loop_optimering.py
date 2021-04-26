@@ -164,7 +164,7 @@ G_model = sol_qual.y[0]
 I_model = sol_qual.y[1]
 C_model = sol_qual.y[2]
 M_model = sol_qual.y[3]
-H_model = sol.qual.y[4]
+H_model = sol_qual.y[4]
 
 
 # Print some statistics  
