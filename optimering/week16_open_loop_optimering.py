@@ -203,8 +203,8 @@ yH2_coordinates = [500,500]
 # plotta glukos
 lw = 2.0
 plot1 = plt.figure(1)
-line1, = plt.plot(xT_coodinates, yG1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xT_coodinates, yG2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line1, = plt.plot(xT_coordinates, yG1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yG2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(data_G['time'].values, data_G['conc'].values, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, G_model, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
