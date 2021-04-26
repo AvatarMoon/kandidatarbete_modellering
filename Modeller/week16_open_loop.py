@@ -23,7 +23,6 @@ def open_loop(t,x):
     k3 = 0.1
     k4 = 0.1
     k5 = 0.1 
-    k6 = 0.1
 
     # Startvärden
     H= 600 # Intag glukos 

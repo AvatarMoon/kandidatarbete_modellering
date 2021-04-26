@@ -120,7 +120,7 @@ def cost_function(b, yG_vec, yI_vec):
 ## Hypercube set up
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
-start = np.array(lhsmdu.sample(5, 1)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
+start = np.array(lhsmdu.sample(5, 4)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
 para, samples = start.shape
 
@@ -170,39 +170,36 @@ print("Value of cost-function")
 print(minimum[0]) 
 
 # Plot model, data and constrains
+
 # Time span for model
 time_span = np.linspace(tG_vec[0],tG_vec[-1], num=len(G_model))
+xT_coordinates = [tG_vec[0],tG_vec[-1]]
 
 # Constrains glukos (G)
-xG_coordinates = [tG_vec[0],tG_vec[-1]]
 yG1_coordinates = [0,0] #mM (human)
 yG2_coordinates = [50,50]   #mM (human)
 
 # Constrains insulin (I)
-xI_coordinates = [tI_vec[0],tI_vec[-1]]
 yI1_coordinates = [0,0]   #pM (human)
 yI2_coordinates = [5000,5000] #pM (human)
  
  # Constrains glukos i lever (C)
-xC_coordinates = [tG_vec[0],tG_vec[-1]] 
 yC1_coordinates = [0,0]  # mmol (human)
 yC2_coordinates = [100,100]  # mmol (human)
 
  # Constrains glukos i muskel (M)
-xM_coordinates = [tG_vec[0],tG_vec[-1]] 
 yM1_coordinates = [0,0]    # mmol (human)
 yM2_coordinates = [140,140]  # mmol (human)
 
  # Constrains glukos upptag (H)
-xH_coordinates = [tG_vec[0],tG_vec[-1]] 
 yH1_coordinates = [0,0]    
 yH2_coordinates = [500,500]  
 
 # plotta glukos
 lw = 2.0
 plot1 = plt.figure(1)
-line1, = plt.plot(xG_coordinates, yG1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xG_coordinates, yG2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line1, = plt.plot(xT_coordinates, yG1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yG2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(data_G['time'].values, data_G['conc'].values, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, G_model, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
@@ -222,8 +219,8 @@ plt.savefig(path_fig)
 # plotta insulin
 lw = 2.0
 plot1 = plt.figure(2)
-line1, = plt.plot(xI_coordinates, yI1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xI_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line1, = plt.plot(xT_coordinates, yI1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(data_I['time'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
@@ -243,8 +240,8 @@ plt.savefig(path_fig)
 # plotta Glukos i lever 
 lw = 2.0
 plot1 = plt.figure(3)
-line1, = plt.plot(xC_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xC_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line1, = plt.plot(xT_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, C_model, label = 'Glukos i levern', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
 plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
@@ -263,8 +260,8 @@ plt.savefig(path_fig)
 # plotta Glukos i muskeln 
 lw = 2.0
 plot1 = plt.figure(4)
-line1, = plt.plot(xM_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xM_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line1, = plt.plot(xT_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, M_model, label = 'Glukos i muskeln', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
 plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
@@ -284,13 +281,12 @@ plt.savefig(path_fig)
 # plotta Glukos intag
 lw = 2.0
 plot1 = plt.figure(5)
-line1, = plt.plot(xH_coordinates, yH1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xH_coordinates, yH2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line1, = plt.plot(xT_coordinates, yH1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yH2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, H_model, label = 'Glukos intag', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
 plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glukos intag")
-plt.show()
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
