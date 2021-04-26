@@ -108,6 +108,10 @@ def cost_function(b, yG_vec, yI_vec):
        squared_sum += 100
     if any(M_model) < np.min(range_M):
         squared_sum += 100
+    if any(H_model) > np.max(range_H):
+       squared_sum += 100
+    if any(H_model) < np.min(range_H):
+        squared_sum += 100
     
 
     # Step 5: Calculate cost-function  
