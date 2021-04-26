@@ -38,13 +38,13 @@ def open_loop(t,x,b):
     L= 500 # Startvärde glukos i levern
 
     # Glucose plasma [1]
-    dG = k4*I*C + k1*H - k2*M
+    dG = k4*C/I + k1*H - k2*M
 
     # Insulin plasma [2]
     dI = -k4*I*C + k3*G
 
     # GLucose liver [3]
-    dC = -k4*I*C + L
+    dC = -k4*C/I + L
 
     # Glucose musle [4]
     dM = k2*G - k5*M
@@ -76,6 +76,8 @@ def cost_function(b, yG_vec, yI_vec):
     I_model = sol_qual.y[1]
     C_model = sol_qual.y[2]
     M_model = sol_qual.y[3]
+    H_model = sol_qual.y[4]
+
 
     # Step 3: Extract G and I model concentrations at t-points tG_vec and tI_vec
     yG_model = sol_G.y[0] 
@@ -88,6 +90,8 @@ def cost_function(b, yG_vec, yI_vec):
     range_I = [0, 5000] #pM 
     range_C = [0, 100] # mmol 
     range_M = [0, 140] # mmol
+    range_H = [0, 500] # mmol
+
      
 
     if any(G_model) > np.max(range_G):
@@ -106,6 +110,10 @@ def cost_function(b, yG_vec, yI_vec):
        squared_sum += 100
     if any(M_model) < np.min(range_M):
         squared_sum += 100
+    if any(H_model) > np.max(range_H):
+       squared_sum += 100
+    if any(H_model) < np.min(range_H):
+        squared_sum += 100
     
 
     # Step 5: Calculate cost-function  
@@ -116,7 +124,7 @@ def cost_function(b, yG_vec, yI_vec):
 ## Hypercube set up
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
-start = np.array(lhsmdu.sample(5, 10)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
+start = np.array(lhsmdu.sample(5, 4)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
 para, samples = start.shape
 
@@ -145,15 +153,12 @@ for n in range(samples):
 
 # Hämta modellen
 # Start concentration, timespan   
-x0 = [60, 5, 34, 3]  # G, I, C, M 
+x0 = [29, 67, 19, 16, 1288]  # G, I, C, M, H 
 time_span_G = [tG_vec[0], tG_vec[-1]] 
 time_span_I = [tI_vec[0], tI_vec[-1]] 
 
 
-# Step 1: Solve ODE-system at points tG_vec
-sol_G = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(minimum[1], ), t_eval=tG_vec) 
-sol_I = integrate.solve_ivp(open_loop, time_span_I, x0, method="LSODA", args=(minimum[1], ), t_eval=tI_vec) 
-
+# Solve model
 sol_qual = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(minimum[1], ))
 
 G_model = sol_qual.y[0]
@@ -171,6 +176,7 @@ print(minimum[0])
 
 # Plot model, data and constrains
 
+# Time span
 time_span = np.linspace(tG_vec[0], tG_vec[-1], len(G_model))
 xT_coodinates = [tG_vec[0],tG_vec[-1]]
 
@@ -190,7 +196,7 @@ yC2_coordinates = [100,100]  # mmol (human)
 yM1_coordinates = [0,0]    # mmol (human)
 yM2_coordinates = [140,140]  # mmol (human)
 
- # Constrains glukos i muskel (M)
+ # Constrains glucose intake (H)
 yH1_coordinates = [0,0]    
 yH2_coordinates = [500,500]  
 
