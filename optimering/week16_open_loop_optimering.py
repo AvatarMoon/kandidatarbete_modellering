@@ -24,9 +24,19 @@ tI_vec = data_I['time'].values
 cG_vec = data_G['conc'].values
 cI_vec = data_I['conc'].values 
 
+# Split the time-vectors at timepoint 20 minutes
+index_G = np.searchsorted(tG_vec, 20)
+index_I = np.searchsorted(tI_vec, 20)
+
+tG_1 = tG_vec[0:index_G]
+tG_2 = tG_vec[index_G:]
+
+tI_1 = tI_vec[0:index_I]
+tI_2 = tI_vec[index_I:]
+
 
 def open_loop(t,x,b): 
-    k1, k2, k3, k4, k5, k6 = b
+    k1, k2, k3, k4, k5 = b
      
     # Says that the concentrations can't be lower than zero 
     x[x < 0] = 0.0 
@@ -37,13 +47,13 @@ def open_loop(t,x,b):
     L= 50 # Startvärde glukos i levern
 
     # Glucose plasma [1]
-    dG = k1*H + k3*C -k2*G*I
+    dG = k1*H + k3*C - k2*I*G
 
     # Insulin plasma [2]
-    dI = k6*G - k2*I*G
+    dI = k5*G - k2*I*G
 
     # GLucose liver [3]
-    dC = -k3*C 
+    dC = -k3*C + L
 
     # Glucose musle [4]
     dM = k2*G*I - k4*M
@@ -51,35 +61,56 @@ def open_loop(t,x,b):
     # Glucose intake [5]
     dH = -k1*H
 
-    # # Glucagon in plasma [6]
-    # dE = -k5*E + k4*M
+    # Glucagon in plasma [6]
+    #dE = -k5*E + k4*M
 
     return [dG, dI, dC, dM, dH]
 
  
 
-def cost_function(b, yG_vec, yI_vec): 
+def cost_function(b, yG_vec, yI_vec):
+   # Calculates the target function for a model based on maximumlikelihood 
 
     # Start concentration, timespan   
-    x0 = [60, 3, 10000, 2, 70]  # G, I, C, M, H, E 
-    time_span_G = [tG_vec[0], tG_vec[-1]] 
-    time_span_I = [tI_vec[0], tI_vec[-1]] 
-    
+    x0 = [60, 3, 10000, 2, 70]  # G, I, C, M, H 
+    time_span_G1 = [tG_1[0], tG_1[-1]]
+    time_span_G2 = [tG_2[0], tG_2[-1]] 
+    time_span_I1 = [tI_1[0], tI_1[-1]]
+    time_span_I2 = [tI_2[0], tI_2[-1]]
 
-    # Step 1: Solve ODE-system at points tG_vec
-    sol_G = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(b, ), t_eval=tG_vec) 
-    sol_I = integrate.solve_ivp(open_loop, time_span_I, x0, method="LSODA", args=(b, ), t_eval=tI_vec) 
 
+    # Solve ODE-system until 20 minutes
+    first_sol_G = integrate.solve_ivp(open_loop, time_span_G1, x0, method="LSODA", args=(b, ), t_eval=tG_1) 
+    first_sol_I = integrate.solve_ivp(open_loop, time_span_I1, x0, method="LSODA", args=(b, ), t_eval=tI_1) 
     
-    # step 2: Solve ODE-system qualitative
-    sol_qual = integrate.solve_ivp(open_loop, time_span_G, x0, method="LSODA", args=(b, ))
+    # Simulate injection of insulin
+    x1 = first_sol_G.y[:,-1] + [0, 100, 0, 0, 0]
+    
+    # Solve ODE-system after 20 miunutes
+    second_sol_G = integrate.solve_ivp(open_loop, time_span_G2, x1, method="LSODA", args=(b, ), t_eval = tG_2)
+    second_sol_I = integrate.solve_ivp(open_loop, time_span_I2, x1, method="LSODA", args=(b, ), t_eval = tI_2)
+
+    # The solution for the ODE-system over tG_vec and tI_vec
+    sol_G = np.concatenate([first_sol_G.y, second_sol_G.y], axis = 1)
+    sol_I = np.concatenate([first_sol_I.y, second_sol_I.y], axis = 1)
+     
+    # Solve ODE-system qualitative
+    first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="LSODA", args=(b, ))
+
+    # Simulate the injection
+    x2 = first_sol_qual.y[:, -1] + [0, 100, 0, 0, 0]
+
+    # Solve ODE-system after 20 miunutes
+    second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "LSODA", args = (b, ))
+
+    sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 1)
 
     G_model = sol_qual.y[0]
     I_model = sol_qual.y[1]
-    C_model = sol_qual.y[1]
-    M_model = sol_qual.y[2]
-    H_model = sol_qual.y[3]
-    #E_model = sol_qual.y[5]
+    C_model = sol_qual.y[2]
+    M_model = sol_qual.y[3]
+    H_model = sol_qual.y[4]
+   #  E_model = sol_qual.y[5]
 
 
     # Step 3: Extract G and I model concentrations at t-points tG_vec and tI_vec
@@ -94,7 +125,7 @@ def cost_function(b, yG_vec, yI_vec):
     range_C = [0, 10000] # mmol 
     range_M = [0, 500] # mmol
     range_H = [0, 500] # mmol
-    # range_E = [0, 5]
+   #  range_E = [0, 5]
 
 
     if any(G_model) > np.max(range_G):
@@ -117,10 +148,10 @@ def cost_function(b, yG_vec, yI_vec):
        squared_sum += 100
     if any(H_model) < np.min(range_H):
        squared_sum += 100
-    # if any(E_model) > np.max(range_E):
-    #    squared_sum += 100
-    # if any(E_model) < np.min(range_E):
-    #    squared_sum += 100
+   #  if any(E_model) > np.max(range_E):
+   #     squared_sum += 100
+   #  if any(E_model) < np.min(range_E):
+   #     squared_sum += 100
     
     
 
@@ -132,7 +163,7 @@ def cost_function(b, yG_vec, yI_vec):
 ## Hypercube set up
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
-start = np.array(lhsmdu.sample(6, 1)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
+start = np.array(lhsmdu.sample(5, 1)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
 para, samples = start.shape
 
@@ -142,7 +173,7 @@ para_int = [0, 500]
 minimum = (np.inf, None)
 
 # Bounds for the model
-bound_low = np.array([0, 0, 0, 0, 0, 0])
+bound_low = np.array([0, 0, 0, 0, 0])
 bound_upp = np.repeat(np.inf, para)
 bounds = Bounds(bound_low, bound_upp)
 
@@ -153,10 +184,10 @@ for n in range(samples):
     k3 = start[2,n] * para_int[1]
     k4 = start[3,n] * para_int[1]
     k5 = start[4,n] * para_int[1]
-    k6 = start[5,n] * para_int[1]
+   #  k6 = start[5,n] * para_int[1]
 
     
-    res = minimize(cost_function, [k1, k2, k3, k4, k5, k6], method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
+    res = minimize(cost_function, [k1, k2, k3, k4, k5], method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
 
     if res.fun < minimum[0]:
         minimum = (res.fun, res.x)
@@ -186,7 +217,52 @@ print(minimum[1])
 print("Value of cost-function") 
 print(minimum[0]) 
 
-# Plot model, data and constrains
+### ~~~~~~ Calculate the sensitivity and identity ~~~~~ ###
+
+def sensitivity(b,t,x):
+   # Calcualte the sensitivity matrix using the optimal 
+    h = np.sqrt(np.finfo(np.float).eps) # Maskintoleransen, vår steglängd för finita differen 
+    b_par = len(b)
+    t_len = len(t)
+    # Sensitivity analysis for each time step
+    S = np.zeros([b_par, t_len * len(x)])
+    time_span = [t[0], t[-1]]
+
+    for n in range(len(b)):
+        b1 = b.copy() 
+        b2 = b.copy()  
+        b1[n] += h 
+        b2[n] -= h
+
+        Sol_high = integrate.solve_ivp(open_loop, time_span, x, method='LSODA', args=(b1, ), t_eval = t)
+        Sol_low = integrate.solve_ivp(open_loop, time_span, x, method='LSODA', args=(b2, ), t_eval= t)
+        
+        Sol_diff = (Sol_high.y-Sol_low.y)/(2*h)
+
+        S[n,:] = Sol_diff.reshape(t_len*len(x))
+
+    return S
+
+S = sensitivity(minimum[1], tG_vec , x0)
+
+# Fisher matrix to make the covariance matrix
+Fisher = 2 * S @ S.transpose()
+
+cov_mat = Fisher.transpose()
+
+# Identification of the parameters
+d_cov = np.diag(cov_mat)
+
+var_coeff = np.square(d_cov)/minimum[1]
+
+print('Sensitivity matrix')
+print(S)
+
+
+print('Identification for each parameters')
+print(var_coeff)
+
+### ~~~~~~ Plot model, data and constrains ~~~~~~~ ###
 
 # Time span
 time_span = np.linspace(tG_vec[0], tG_vec[-1], len(G_model))
