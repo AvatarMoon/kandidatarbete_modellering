@@ -215,8 +215,9 @@ for n in range(samples):
     k1 = start[0,n] * para_int[2]
     k2 = start[1,n] * para_int[1]
     k3 = start[2,n] * para_int[1]
-    k4 = start[3,n] * para_int[1]
+    k4 = start[3,n] * para_int[2]
     k5 = start[4,n] * para_int[1]
+    k6 = start[5,n] * para_int[1]
     k7 = start[6,n] * para_int[3]
     k8 = start[7,n] * para_int[1]
 
@@ -268,7 +269,7 @@ F_model = sol_qual.y[6]
 # M_model = sol_qual[3]
 # H_model = sol_qual[4]
 # E_model = sol_qual[5]
-'
+
 
 
 # Print some statistics  
@@ -348,7 +349,6 @@ yH2_coordinates = [200,200]
 yE1_coordinates = [0,0]    
 yE2_coordinates = [200,200]  
 
-<<<<<<< HEAD
  # Constrains Fettreserver (F)
 yF1_coordinates = [0,0]    
 yF2_coordinates = [500,500] 
@@ -510,8 +510,6 @@ path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
 path_fig = path_result_dir + "/plot_Fettreserver.jpg"
-=======
 path_fig = path_result_dir + "/plot_glucagon_plasma.jpg"
->>>>>>> 4d3048a6953eebdb7fae921bd3e1daeaacc06463
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
