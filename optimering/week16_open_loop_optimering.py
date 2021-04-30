@@ -336,7 +336,7 @@ yC2_coordinates = [1000,1000]  # mmol (human)
 
  # Constrains glukos i muskel (M) 
 yM1_coordinates = [0,0]    # mmol (human)
-yM2_coordinates = [1000,1000]  # mmol (human)
+yM2_coordinates = [1400,1400]  # mmol (human)
 
  # Constrains glucose intake (H)
 yH1_coordinates = [0,0]    
