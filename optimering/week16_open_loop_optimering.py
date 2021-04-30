@@ -212,17 +212,14 @@ bounds = Bounds(bound_low, bound_upp)
 
 
 for n in range(samples):
-    k1 = start[0,n] * para_int[2]
+    k1 = start[0,n] * para_int[1]
     k2 = start[1,n] * para_int[1]
     k3 = start[2,n] * para_int[1]
-    k4 = start[3,n] * para_int[2]
+    k4 = start[3,n] * para_int[1]
     k5 = start[4,n] * para_int[1]
     k6 = start[5,n] * para_int[1]
-    k7 = start[6,n] * para_int[3]
+    k7 = start[6,n] * para_int[1]
     k8 = start[7,n] * para_int[1]
-
-
-
     
     res = minimize(cost_function, [k1, k2, k3, k4, k5, k6, k7, k8], method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
 
@@ -242,7 +239,7 @@ time_span_I = [tI_vec[0], tI_vec[-1]]
 #inj = 2742
 
 # Solve ODE-system qualitative
-first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="LSODA", args=(minimum[1], ))
+sol_qual = integrate.solve_ivp(open_loop, time_span_G, x0, method="Radau", args=(minimum[1], ))
 
 
 G_model = sol_qual.y[0]
@@ -347,7 +344,7 @@ yH2_coordinates = [200,200]
 
  # Constrains glucagon plasma (E)
 yE1_coordinates = [0,0]    
-yE2_coordinates = [200,200]  
+yE2_coordinates = [75, 75]  
 
  # Constrains Fettreserver (F)
 yF1_coordinates = [0,0]    
