@@ -7,6 +7,7 @@ import math
 import pandas as pd
 import os
 import lhsmdu
+import tqdm
 
 # Colour-blind friendly palette (use nice colors)
 cb_palette1 = ["#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
@@ -36,35 +37,38 @@ tI_2 = tI_vec[index_I:]
 
 
 def open_loop(t,x,b): 
-    k1, k2, k3, k4, k5, k6 = b
+    k1, k2, k3, k4, k5, k6, k7, k7 = b
      
     # Says that the concentrations can't be lower than zero 
-    x[x < 0] = 0.0 
+    x = x.copy() # can't modify the input so we copy it
+
+    x[x < 0] = 0.0  
 
     # Concentrations in the model as input 
-    G, I, C, M, H, E = x 
-
-    L= 50 # Startvärde glukos i levern
+    G, I, C, M, H, E, F = x
 
     # Glucose plasma [1]
-    dG = k1*H + k3*C - k2*G*I
+    dG = k4*C + k1*H - k2*G*I
 
     # Insulin plasma [2]
-    dI = k5*G - k2*I*G
+    dI = k3*G - k2*I*G
 
     # GLucose liver [3]
-    dC = -k3*C + L
+    dC = -k4*C + k6*E + k7*F
 
     # Glucose musle [4]
-    dM = k2*G*I - k4*M
+    dM = k2*G*I - k5*M
 
     # Glucose intake [5]
     dH = -k1*H
 
     #Glucagon in plasma [6]
-    dE = -1/k6*E 
+    dE = k8 - k2*E*G 
 
-    return [dG, dI, dC, dM, dH, dE]
+    # Fettreserve [7]
+    dF = -k7*F
+
+    return [dG, dI, dC, dM, dH, dE, dF]
 
  
 
@@ -72,38 +76,49 @@ def cost_function(b, yG_vec, yI_vec):
    # Calculates the target function for a model based on maximumlikelihood 
 
     # Start concentration, timespan   
-    x0 = [60, 3, 10000, 2, 70, 500]  # G, I, C, M, H, E 
-    time_span_G1 = [tG_1[0], tG_1[-1]]
-    time_span_G2 = [tG_2[0], tG_2[-1]] 
-    time_span_I1 = [tI_1[0], tI_1[-1]]
-    time_span_I2 = [tI_2[0], tI_2[-1]]
+    x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
+
+    # Split the time-vectors at timepoint 20 minutes
+    index_G = np.searchsorted(tG_vec, 20)
+    index_I = np.searchsorted(tI_vec, 20)
+
+    tG_1 = tG_vec[0:index_G]
+    tG_2 = tG_vec[index_G:]
+
+    tI_1 = tI_vec[0:index_I]
+    tI_2 = tI_vec[index_I:]
+
+    time_span1 = [0, 20]
+
+    time_span_G2 = [20, tG_2[-1]]
+    time_span_I2 = [20, tI_2[-1]]
     
     #Injection
     inj = 2742
 
     # Solve ODE-system until 20 minutes
-    first_sol_G = integrate.solve_ivp(open_loop, time_span_G1, x0, method="LSODA", args=(b, ), t_eval=tG_1) 
-    first_sol_I = integrate.solve_ivp(open_loop, time_span_I1, x0, method="LSODA", args=(b, ), t_eval=tI_1) 
+    first_sol_G = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tG_1) 
+    first_sol_I = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tI_1) 
     
     # Simulate injection of insulin
-    x1 = first_sol_G.y[:,-1] + [0, inj, 0, 0, 0, 0]
+    x1 = first_sol_G.y[:,-1] + [0, inj, 0, 0, 0, 0, 0]
     
     # Solve ODE-system after 20 miunutes
-    second_sol_G = integrate.solve_ivp(open_loop, time_span_G2, x1, method="LSODA", args=(b, ), t_eval = tG_2)
-    second_sol_I = integrate.solve_ivp(open_loop, time_span_I2, x1, method="LSODA", args=(b, ), t_eval = tI_2)
+    second_sol_G = integrate.solve_ivp(open_loop, time_span_G2, x1, method="Radau", args=(b, ), t_eval = tG_2)
+    second_sol_I = integrate.solve_ivp(open_loop, time_span_I2, x1, method="Radau", args=(b, ), t_eval = tI_2)
 
     # The solution for the ODE-system over tG_vec and tI_vec
     sol_G = np.concatenate([first_sol_G.y, second_sol_G.y], axis = 1)
     sol_I = np.concatenate([first_sol_I.y, second_sol_I.y], axis = 1)
      
     # Solve ODE-system qualitative
-    first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="LSODA", args=(b, ))
+    first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(b, ))
 
     # Simulate the injection
-    x2 = first_sol_qual.y[:, -1] + [0, 10000, 0, 0, 0, 0]
+    x2 = first_sol_qual.y[:, -1] + [0, 10000, 0, 0, 0, 0, 0]
 
     # Solve ODE-system after 20 miunutes with injection
-    second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "LSODA", args = (b, ))
+    second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (b, ))
 
     sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 1)
 
@@ -113,6 +128,7 @@ def cost_function(b, yG_vec, yI_vec):
     M_model = sol_qual[3]
     H_model = sol_qual[4]
     E_model = sol_qual[5]
+    F_model = sol_qual[6]
 
     # Extract G and I model concentrations at t-points tG_vec and tI_vec
     yG_model = sol_G[0] 
@@ -126,7 +142,8 @@ def cost_function(b, yG_vec, yI_vec):
     range_C = [0, 10000] # mmol 
     range_M = [0, 500] # mmol
     range_H = [0, 500] # mmol
-    range_E = [0, 5]
+    range_E = [0, 500]
+    range_F = [0, 500]
 
 
     if any(G_model) > np.max(range_G):
@@ -153,7 +170,10 @@ def cost_function(b, yG_vec, yI_vec):
        squared_sum += 100
     if any(E_model) < np.min(range_E):
        squared_sum += 100
-    
+    if any(F_model) > np.max(range_F):
+       squared_sum += 100
+    if any(F_model) < np.min(range_F):
+       squared_sum += 100
     
 
     # Calculate cost-function  
@@ -164,7 +184,7 @@ def cost_function(b, yG_vec, yI_vec):
 ## Hypercube set up
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
-start = np.array(lhsmdu.sample(6, 1)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
+start = np.array(lhsmdu.sample(8, 1)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
 para, samples = start.shape
 
@@ -174,9 +194,14 @@ para_int = [0, 500]
 minimum = (np.inf, None)
 
 # Bounds for the model
-bound_low = np.array([0, 0, 0, 0, 0, 0])
+bound_low = np.array([0, 0, 0, 0, 0, 0, 0, 0])
 bound_upp = np.repeat(np.inf, para)
 bounds = Bounds(bound_low, bound_upp)
+
+def callback(xk):
+    print('Current optimal parameters')
+    print(xk)
+
 
 
 for n in range(samples):
@@ -186,16 +211,17 @@ for n in range(samples):
     k4 = start[3,n] * para_int[1]
     k5 = start[4,n] * para_int[1]
     k6 = start[5,n] * para_int[1]
-
+    k7 = start[6,n] * para_int[1]
+    k8 = start[7,n] * para_int[1]
     
-    res = minimize(cost_function, [k1, k2, k3, k4, k5, k6], method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
+    res = minimize(cost_function, [k1, k2, k3, k4, k5, k6, k7, k8], method='Powell', args = (cG_vec, cI_vec), bounds=bounds, callback = callback) #lägg in constraints här 
 
     if res.fun < minimum[0]:
         minimum = (res.fun, res.x)
 
 # Hämta modellen
 # Start concentration, timespan   
-x0 = [60, 5, 10000, 2, 70, 500]  # G, I, C, M, H, E
+x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
 time_span_G = [tG_vec[0], tG_vec[-1]] 
 time_span_I = [tI_vec[0], tI_vec[-1]] 
 
@@ -203,15 +229,15 @@ time_span_I = [tI_vec[0], tI_vec[-1]]
 inj = 2742
 
 # Solve ODE-system qualitative
-first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="LSODA", args=(minimum[1], ))
+first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(minimum[1], ))
 
 # Simulate the injection
-x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0, 0]
+x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0, 0, 0]
 
 # Solve ODE-system after 20 miunutes with injection
-second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "LSODA", args = (minimum[1], ))
+second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (minimum[1], ))
 
-sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 1)
+sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 0)
 time_span = np.concatenate([first_sol_qual.t, second_sol_qual.t])
 
 G_model = sol_qual[0]
@@ -220,6 +246,8 @@ C_model = sol_qual[2]
 M_model = sol_qual[3]
 H_model = sol_qual[4]
 E_model = sol_qual[5]
+F_model = sol_qual[6]
+
 
 
 # Print some statistics  
@@ -298,6 +326,10 @@ yH2_coordinates = [500,500]
 yE1_coordinates = [0,0]    
 yE2_coordinates = [500,500] 
 
+ # Constrains glucagon in plasma (E)
+yF1_coordinates = [0,0]    
+yF2_coordinates = [500,500] 
+
 
 # plotta glukos
 lw = 2.0
@@ -318,7 +350,7 @@ plt.title("Glucose in plasma")
 
 # Sparar figur i plot constrains, glukos
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -336,7 +368,7 @@ line3, = plt.plot(data_I['time'].values, data_I['conc'].values, label = 'Insulin
 line4, = plt.plot(time_span, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
 plt.xlabel("time", fontsize=12), plt.ylabel("Insulin koncentration", fontsize=12)
-plt.title("Insulin in plasma")
+plt.title("Insulin i plasman")
 
 # # Residual plot for insulin
 # I_res = plt.subplot(122)
@@ -345,7 +377,7 @@ plt.title("Insulin in plasma")
 
 # Sparar figur i plot constrains, insulin
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -365,7 +397,7 @@ plt.title("Glukos i levern")
 
 # Sparar figur i plot constrains, glukos i levern
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -386,7 +418,7 @@ plt.title("Glukos i muskeln")
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -408,7 +440,7 @@ plt.title("Glukos intag")
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -429,10 +461,31 @@ plt.title("Glukagon i plasma")
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
 path_fig = path_result_dir + "/plot_glucagon_plasma.jpg"
+print("path_fig = {}".format(path_fig))
+plt.savefig(path_fig)
+
+# plotta Fettreserve 
+lw = 2.0
+plot1 = plt.figure(7)
+line1, = plt.plot(xT_coordinates, yF1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yF2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, F_model, label = 'Fettreserv', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
+plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
+plt.title("Fettreserver")
+
+
+# Sparar figur i plot constrains, glukos i muskeln
+# Write the result to file
+path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
+# Check if directory exists
+if not os.path.isdir(path_result_dir):
+    os.mkdir(path_result_dir)  # Create a new directory if not existing
+path_fig = path_result_dir + "/plot_fettreserve.jpg"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
