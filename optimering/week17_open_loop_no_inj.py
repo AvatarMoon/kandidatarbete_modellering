@@ -52,13 +52,13 @@ def open_loop(t,x,b):
     dG = k4*C + k1*H - k2*G*I
 
     # Insulin plasma [2]
-    dI = k3*G - k2*G*I
+    dI = k3*G - k2*G*I*10**(-9)
 
     # GLucose liver [3]
-    dC = -k4*C + k6*E + k7*F
+    dC = -k4*C + k6*E*10**(-9) + k7*F
 
     # Glucose musle [4]
-    dM = k2*G*I - k5*M
+    dM = k2*G*I*10**(-9) - k5*M
 
     # Glucose intake [5]
     dH = -k1*H
@@ -212,14 +212,14 @@ bounds = Bounds(bound_low, bound_upp)
 
 
 for n in range(samples):
-    k1 = start[0,n] * para_int[1]
-    k2 = start[1,n] * para_int[1]
-    k3 = start[2,n] * para_int[1]
-    k4 = start[3,n] * para_int[1]
-    k5 = start[4,n] * para_int[1]
-    k6 = start[5,n] * para_int[1]
-    k7 = start[6,n] * para_int[1]
-    k8 = start[7,n] * para_int[1]
+    k1 = start[0,n] * para_int[2]
+    k2 = start[1,n] * para_int[2]
+    k3 = start[2,n] * para_int[2]
+    k4 = start[3,n] * para_int[2]
+    k5 = start[4,n] * para_int[2]
+    k6 = start[5,n] * para_int[2]
+    k7 = start[6,n] * para_int[2]
+    k8 = start[7,n] * para_int[2]
     
     res = minimize(cost_function, [k1, k2, k3, k4, k5, k6, k7, k8], method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
 
