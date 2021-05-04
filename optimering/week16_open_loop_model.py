@@ -37,46 +37,40 @@ cI_vec = data_I['conc'].values
 
 def open_loop(t,x,b): 
 
-    k1, k2, k3, k4, k5, k6, k7, k8 = b
+    k1, k2, k3, k4, k5 = b
      
     # Says that the concentrations can't be lower than zero 
     x[x < 0] = 0.0 
 
     # Concentrations in the model as input 
 
-    G, I, C, M, H, E, F = x 
+    G, I, C, M, H = x 
 
-    #L= 5000 # Startvärde glukos i levern
+    L= 5000 # Startvärde glukos i levern
 
     # Glucose plasma [1]
-    dG = k4*C + k1*H - k2*G*I
+    dG = k4*C*I + k1*H - k2*G
 
     # Insulin plasma [2]
-    dI = k3*G - k2*G*I
+    dI = k3*G - k4*G*I
 
     # GLucose liver [3]
-    dC = -k4*C + k6*E + k7*F
+    dC = -k4*C*I + L
 
     # Glucose musle [4]
-    dM = k2*G*I - k5*M
+    dM = k2*G - k5*M
 
     # Glucose intake [5]
     dH = -k1*H
 
-    # Glucagon [6]
-    dE = k8 - k2*G*E 
-
-    # Fettreserv [7]
-    dF = -k7*F
-
-    return [dG, dI, dC, dM, dH, dE, dF]
+    return [dG, dI, dC, dM, dH]
 
 
 def cost_function(b, yG_vec, yI_vec):
    # Calculates the target function for a model based on maximumlikelihood 
 
     # Start concentration, timespan   
-    x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
+    x0 = [30, 100, 100, 60, 70]  # G, I, C, M, H
     time_span_G = [tG_vec[0], tG_vec[-1]] 
     time_span_I = [tI_vec[0], tI_vec[-1]] 
 
@@ -102,8 +96,6 @@ def cost_function(b, yG_vec, yI_vec):
     C_model = sol_qual.y[2]
     M_model = sol_qual.y[3]
     H_model = sol_qual.y[4]
-    E_model = sol_qual.y[5]
-    F_model = sol_qual.y[6]
 
 
     # # Solve ODE-system until 20 minutes
@@ -151,8 +143,6 @@ def cost_function(b, yG_vec, yI_vec):
     range_C = [0, 1000] # mmol 
     range_M = [0, 1000] # mmol
     range_H = [0, 500] # mmol
-    range_E = [0, 500] # mmol
-    range_F = [0, 500] # mmol
 
 
     if any(G_model) > np.max(range_G):
@@ -175,14 +165,6 @@ def cost_function(b, yG_vec, yI_vec):
        squared_sum += 100
     if any(H_model) < np.min(range_H):
         squared_sum += 100
-    if any(E_model) > np.max(range_E):
-       squared_sum += 100
-    if any(E_model) < np.min(range_E):
-        squared_sum += 100
-    if any(F_model) > np.max(range_F):
-       squared_sum += 100
-    if any(F_model) < np.min(range_F):
-        squared_sum += 100
 
 
     # Calculate cost-function  
@@ -194,7 +176,7 @@ def cost_function(b, yG_vec, yI_vec):
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
 
-start = np.array(lhsmdu.sample(8, 1)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
+start = np.array(lhsmdu.sample(5, 1)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
 para, samples = start.shape
 
@@ -205,23 +187,20 @@ minimum = (np.inf, None)
 
 # Bounds for the model
 
-bound_low = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+bound_low = np.array([0, 0, 0, 0, 0])
 
 bound_upp = np.repeat(np.inf, para)
 bounds = Bounds(bound_low, bound_upp)
 
 
 for n in range(samples):
-    k1 = start[0,n] * para_int[1]
-    k2 = start[1,n] * para_int[1]
-    k3 = start[2,n] * para_int[1]
-    k4 = start[3,n] * para_int[1]
-    k5 = start[4,n] * para_int[1]
-    k6 = start[5,n] * para_int[1]
-    k7 = start[6,n] * para_int[1]
-    k8 = start[7,n] * para_int[1]
+    k1 = start[0,n] * para_int[2]
+    k2 = start[1,n] * para_int[2]
+    k3 = start[2,n] * para_int[2]
+    k4 = start[3,n] * para_int[2]
+    k5 = start[4,n] * para_int[2]
     
-    res = minimize(cost_function, [k1, k2, k3, k4, k5, k6, k7, k8], method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
+    res = minimize(cost_function, [k1, k2, k3, k4, k5], method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
 
 
     if res.fun < minimum[0]:
@@ -230,7 +209,7 @@ for n in range(samples):
 # Hämta modellen
 # Start concentration, timespan   
 
-x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
+x0 = [30, 100, 34, 60, 70]  # G, I, C, M, H
 
 time_span_G = [tG_vec[0], tG_vec[-1]] 
 time_span_I = [tI_vec[0], tI_vec[-1]] 
@@ -247,8 +226,6 @@ I_model = sol_qual.y[1]
 C_model = sol_qual.y[2]
 M_model = sol_qual.y[3]
 H_model = sol_qual.y[4]
-E_model = sol_qual.y[5]
-F_model = sol_qual.y[6]
 
 
 
@@ -342,14 +319,6 @@ yM2_coordinates = [1400,1400]  # mmol (human)
 yH1_coordinates = [0,0]    
 yH2_coordinates = [200,200]  
 
- # Constrains glucagon plasma (E)
-yE1_coordinates = [0,0]    
-yE2_coordinates = [75, 75]  
-
- # Constrains Fettreserver (F)
-yF1_coordinates = [0,0]    
-yF2_coordinates = [500,500] 
-
 
 # plotta glukos
 lw = 2.0
@@ -370,7 +339,7 @@ plt.title("Glukos i plasma")
 
 # Sparar figur i plot constrains, glukos
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+path_result_dir = "optimering/Bilder/plot_week16_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -397,7 +366,7 @@ plt.title("Insulin i plasma")
 
 # Sparar figur i plot constrains, insulin
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+path_result_dir = "optimering/Bilder/plot_week16_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -417,7 +386,7 @@ plt.title("Glukos i levern")
 
 # Sparar figur i plot constrains, glukos i levern
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+path_result_dir = "optimering/Bilder/plot_week16_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -438,7 +407,7 @@ plt.title("Glukos i muskeln")
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+path_result_dir = "optimering/Bilder/plot_week16_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -460,53 +429,10 @@ plt.title("Glukos intag")
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
+path_result_dir = "optimering/Bilder/plot_week16_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
 path_fig = path_result_dir + "/plot_glukos_intag.jpg"
-print("path_fig = {}".format(path_fig))
-plt.savefig(path_fig)
-
-# plotta Glucagon in plasma
-lw = 2.0
-plot1 = plt.figure(6)
-line1, = plt.plot(xT_coordinates, yE1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xT_coordinates, yE2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
-line3, = plt.plot(time_span, E_model, label = 'Glukagon i plasma', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
-plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
-plt.title("Glukagon i plasma")
-
-
-# Sparar figur i plot constrains, glukos i muskeln
-# Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
-# Check if directory exists
-if not os.path.isdir(path_result_dir):
-    os.mkdir(path_result_dir)  # Create a new directory if not existing
-path_fig = path_result_dir + "/plot_glukagon_i_plasma.jpg"
-print("path_fig = {}".format(path_fig))
-plt.savefig(path_fig)
-
-# plotta Fettreserver
-lw = 2.0
-plot1 = plt.figure(7)
-line1, = plt.plot(xT_coordinates, yF1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xT_coordinates, yF2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
-line3, = plt.plot(time_span, F_model, label = 'Fettreserver', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
-plt.xlabel("tid", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
-plt.title("Fettreserver")
-
-
-# Sparar figur i plot constrains, glukos i muskeln
-# Write the result to file
-path_result_dir = "optimering/Bilder/plot_week16_open_loop_model"
-# Check if directory exists
-if not os.path.isdir(path_result_dir):
-    os.mkdir(path_result_dir)  # Create a new directory if not existing
-path_fig = path_result_dir + "/plot_Fettreserver.jpg"
-path_fig = path_result_dir + "/plot_glucagon_plasma.jpg"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
