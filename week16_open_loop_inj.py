@@ -183,6 +183,8 @@ fig = plt.figure()
 
 os.makedirs("logs16", exist_ok=True)
 filename = f"logs16/{datetime.datetime.utcnow()}.log"
+filename = filename.replace(" ","_")
+filename = filename.replace(":",".")
 
 for n in tqdm(range(samples)):
     k0 = start[:,n] * para_int[1]
@@ -196,7 +198,7 @@ for n in tqdm(range(samples)):
             bounds=bounds, 
             tol=0.1,
             options = {'disp' : True},
-        ) #lägg in constraints här 
+        ) #lägg in constraints h 
     except ValueError as err:
         msg = f"Start values: {k0}\nLed to negative solution: {err}"
         with open(filename, "a") as f:
@@ -206,7 +208,6 @@ for n in tqdm(range(samples)):
 
     if res.fun < minimum[0]:
         minimum = (res.fun, res.x)
-
     with open(filename, "a") as f:
         f.writelines([f"Success!", f"Found solution: {res.x}"])
 
