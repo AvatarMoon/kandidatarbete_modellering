@@ -190,7 +190,7 @@ start = np.array(lhsmdu.sample(8, 10)) # Latin Hypercube Sampling with multi-dim
 para, samples = start.shape
 
 ## intervals for the parameters
-para_int = [0, 500]
+para_int = [0, 0.001, 0.01, 0.1, 1, 10, 100, 500]
 
 minimum = (np.inf, None)
 
@@ -205,13 +205,22 @@ os.makedirs("logs", exist_ok=True)
 filename = f"logs/{datetime.datetime.utcnow()}.log"
 
 for n in tqdm(range(samples)):
-    k0 = start[:,n] * para_int[1]
+    # k0 = start[:,n] * para_int[1]
+    k1 = start[0,n] * para_int[2]
+    k2 = start[1,n] * para_int[2]
+    k3 = start[2,n] * para_int[1]
+    k4 = start[3,n] * para_int[3]
+    k5 = start[4,n] * para_int[4]
+    k6 = start[5,n] * para_int[2]
+    k7 = start[6,n] * para_int[4]
+    k8 = start[7,n] * para_int[1]
+
 
     try:
         res = minimize(
             fun = cost_function, 
-            x0 = k0,
-            method='Powell', 
+            x0 = [k1, k2, k3, k4, k5, k6, k7, k8],
+            method = 'Powell', 
             args = (cG_vec, cI_vec), 
             bounds=bounds, 
             tol=0.1,
