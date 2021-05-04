@@ -179,7 +179,7 @@ def cost_function(b, yG_vec, yI_vec):
     
 
     # Calculate cost-function  
-    squared_sum = np.sum((yG_model - yG_vec))**2+np.sum((yI_model -  yI_vec)**2) 
+    squared_sum = np.sum((yG_model - yG_vec)**2) + np.sum((yI_model -  yI_vec)**2) 
 
     return squared_sum 
 
@@ -187,24 +187,27 @@ n_samples = 1000
 
 # Hypersphere
 
-# # Uniform
-# def hypersphere(n_dimensions, n_samples):
-#     rho = np.random.uniform(0, 1, n_samples) ** (1 / n_dimensions)
-#     r = np.random.normal(size=(n_dimensions, n_samples))
-#     c = np.sqrt(np.sum(r ** 2, axis=0))
-#     return rho * r / c
+# Uniform
+def hypersphere(n_dimensions, n_samples):
+    rho = np.random.uniform(0, 1, n_samples) ** (1 / n_dimensions)
+    r = np.abs(np.random.normal(size=(n_dimensions, n_samples)))
+    c = np.sqrt(np.sum(r ** 2, axis=0))
+    return rho * r / c
 
 # # Hypersphere
-# x = hypersphere(n_dimensions=2, n_samples=n_samples)
+# x = hypersphere(n_dimensions=8, n_samples=n_samples)
+# start = x*1000
+
+# print(start)
 
 # minimal_sphere = (np.inf, None)
 
 # for n in tqdm(range(n_samples)):
 
-#     cost = cost_function(y[:,n], cG_vec, cI_vec)
+#     cost = cost_function(start[:,n], cG_vec, cI_vec)
 
-#     if cost < minimum[0]:
-#         minimum_sphere = (cost, x[:,n])
+#     if cost < minimal_sphere[0]:
+#         minimal_sphere = (cost, start[:,n])
 
 
 # Loguniform 
@@ -226,7 +229,7 @@ for n in tqdm(range(n_samples)):
     if cost < minimum_log[0]:
         minimum_log = (cost, y[:,n])
 
-print("Minimal costfunction and its parameters Sphere")
-print(minimal_sphere)
+# print("Minimal costfunction and its parameters Sphere")
+# print(minimal_sphere)
 print("Minimal costfunction and its parameters Log")
 print(minimum_log)
