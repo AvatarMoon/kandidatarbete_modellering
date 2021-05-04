@@ -82,7 +82,7 @@ def cost_function(b, yG_vec, yI_vec):
    # Calculates the target function for a model based on maximumlikelihood 
 
     # Start concentration, timespan   
-    x0 = [30, 100, 100, ,60, 70]  # G, I, C, M, H, 
+    x0 = [30, 100, 100, 60, 70]  # G, I, C, M, H, 
     
     #Injection of insulin
     inj = 2742
@@ -107,7 +107,7 @@ def cost_function(b, yG_vec, yI_vec):
     first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(b, ))
 
     # Simulate the injection
-    x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0, 0, 0]
+    x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0]
 
     # Solve ODE-system after 20 miunutes with injection
     second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (b, ))
@@ -119,8 +119,6 @@ def cost_function(b, yG_vec, yI_vec):
     C_model = sol_qual[2]
     M_model = sol_qual[3]
     H_model = sol_qual[4]
-    E_model = sol_qual[5]
-    F_model = sol_qual[6]
 
     # Extract G and I model concentrations at t-points tG_vec and tI_vec
     yG_model = sol_G[0] 
@@ -134,8 +132,6 @@ def cost_function(b, yG_vec, yI_vec):
     range_C = [0, 10000] # mmol 
     range_M = [0, 500] # mmol
     range_H = [0, 500] # mmol
-    range_E = [0, 500]
-    range_F = [0, 500]
 
     penalty = 10000
 
@@ -159,14 +155,6 @@ def cost_function(b, yG_vec, yI_vec):
        squared_sum += penalty
     if any(H_model) < np.min(range_H):
        squared_sum += penalty
-    if any(E_model) > np.max(range_E):
-       squared_sum += penalty
-    if any(E_model) < np.min(range_E):
-       squared_sum += penalty
-    if any(F_model) > np.max(range_F):
-       squared_sum += penalty
-    if any(F_model) < np.min(range_F):
-       squared_sum += penalty
     
 
     # Calculate cost-function  
@@ -177,7 +165,7 @@ def cost_function(b, yG_vec, yI_vec):
 ## Hypercube set up
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
-start = np.array(lhsmdu.sample(8, 10)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
+start = np.array(lhsmdu.sample(5, 10)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
 para, samples = start.shape
 
@@ -224,9 +212,7 @@ for n in tqdm(range(samples)):
 
 # Hämta modellen
 # Start concentration, timespan   
-x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
-time_span_G = [tG_vec[0], tG_vec[-1]] 
-time_span_I = [tI_vec[0], tI_vec[-1]] 
+x0 = [30, 100, 100, 60, 70]  # G, I, C, M, H 
 
 #Injection
 inj = 2742
@@ -238,7 +224,7 @@ first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args
 x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0, 0, 0]
 
 # Solve ODE-system after 20 miunutes with injection
-second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (minimum[1], ))
+second_sol_qual = integrate.solve_ivp(open_loop, [20,tG_vec[-1]], x2, method = "Radau", args = (minimum[1], ))
 
 sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 1)
 time_span = np.concatenate([first_sol_qual.t, second_sol_qual.t])
@@ -248,8 +234,6 @@ I_model = sol_qual[1]
 C_model = sol_qual[2]
 M_model = sol_qual[3]
 H_model = sol_qual[4]
-E_model = sol_qual[5]
-F_model = sol_qual[6]
 
 
 
@@ -313,25 +297,20 @@ yG2_coordinates = [50,50]   #mM (human)
 yI1_coordinates = [0,0]   #pM (human)
 yI2_coordinates = [5000,5000] #pM (human)
  
- # Constrains glukos i lever (C) 
+# Constrains glukos i lever (C) 
 yC1_coordinates = [0,0]  # mmol (human)
 yC2_coordinates = [100,100]  # mmol (human)
 
- # Constrains glukos i muskel (M) 
+# Constrains glukos i muskel (M) 
 yM1_coordinates = [0,0]    # mmol (human)
 yM2_coordinates = [140,140]  # mmol (human)
 
- # Constrains glucose intake (H)
+# Constrains glucose intake (H)
 yH1_coordinates = [0,0]    
 yH2_coordinates = [500,500]  
 
- # Constrains glucagon in plasma (E)
-yE1_coordinates = [0,0]    
-yE2_coordinates = [500,500] 
+# Constrains glucagon in plasma (E)
 
- # Constrains glucagon in plasma (E)
-yF1_coordinates = [0,0]    
-yF2_coordinates = [500,500] 
 
 
 # plotta glukos
