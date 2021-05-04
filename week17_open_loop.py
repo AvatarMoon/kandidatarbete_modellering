@@ -7,7 +7,9 @@ import math
 import pandas as pd
 import os
 import lhsmdu
-import tqdm
+from tqdm import tqdm
+import copy
+import datetime
 
 # Colour-blind friendly palette (use nice colors)
 cb_palette1 = ["#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
@@ -35,14 +37,20 @@ tG_2 = tG_vec[index_G:]
 tI_1 = tI_vec[0:index_I]
 tI_2 = tI_vec[index_I:]
 
+time_span1 = [0, 20]
+
+time_span_G2 = [20, tG_2[-1]]
+time_span_I2 = [20, tI_2[-1]]
+
 
 def open_loop(t,x,b): 
-    k1, k2, k3, k4, k5, k6, k7, k7 = b
+    # Parameters for the models as input
+    k1, k2, k3, k4, k5, k6, k7, k8 = b
      
-    # Says that the concentrations can't be lower than zero 
-    x = x.copy() # can't modify the input so we copy it
+    # # Says that the concentrations can't be lower than zero 
+    # x = copy.deepcopy(x_old) # can't modify the input so we copy it
 
-    x[x < 0] = 0.0  
+    # x[x < 0] = 0.0  
 
     # Concentrations in the model as input 
     G, I, C, M, H, E, F = x
@@ -62,7 +70,7 @@ def open_loop(t,x,b):
     # Glucose intake [5]
     dH = -k1*H
 
-    #Glucagon in plasma [6]
+    # Glucagon in plasma [6]
     dE = k8 - k2*E*G 
 
     # Fettreserve [7]
@@ -73,39 +81,28 @@ def open_loop(t,x,b):
  
 
 def cost_function(b, yG_vec, yI_vec):
+    if(any(b <= 0)):
+        raise ValueError(f"{b}")
+
    # Calculates the target function for a model based on maximumlikelihood 
 
     # Start concentration, timespan   
     x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
-
-    # Split the time-vectors at timepoint 20 minutes
-    index_G = np.searchsorted(tG_vec, 20)
-    index_I = np.searchsorted(tI_vec, 20)
-
-    tG_1 = tG_vec[0:index_G]
-    tG_2 = tG_vec[index_G:]
-
-    tI_1 = tI_vec[0:index_I]
-    tI_2 = tI_vec[index_I:]
-
-    time_span1 = [0, 20]
-
-    time_span_G2 = [20, tG_2[-1]]
-    time_span_I2 = [20, tI_2[-1]]
     
-    #Injection
+    #Injection of insulin
     inj = 2742
 
     # Solve ODE-system until 20 minutes
-    first_sol_G = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tG_1) 
+    first_sol_G = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tG_1)
     first_sol_I = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tI_1) 
     
     # Simulate injection of insulin
-    x1 = first_sol_G.y[:,-1] + [0, inj, 0, 0, 0, 0, 0]
-    
-    # Solve ODE-system after 20 miunutes
-    second_sol_G = integrate.solve_ivp(open_loop, time_span_G2, x1, method="Radau", args=(b, ), t_eval = tG_2)
-    second_sol_I = integrate.solve_ivp(open_loop, time_span_I2, x1, method="Radau", args=(b, ), t_eval = tI_2)
+    x1_G = first_sol_G.y[:,-1] + [0, inj, 0, 0, 0, 0, 0]
+    x1_I = first_sol_I.y[:,-1] + [0, inj, 0, 0, 0, 0, 0]
+
+    # Solve ODE-system after injection
+    second_sol_G = integrate.solve_ivp(open_loop, time_span_G2, x1_G, method="Radau", args=(b, ), t_eval = tG_2)
+    second_sol_I = integrate.solve_ivp(open_loop, time_span_I2, x1_I, method="Radau", args=(b, ), t_eval = tI_2)
 
     # The solution for the ODE-system over tG_vec and tI_vec
     sol_G = np.concatenate([first_sol_G.y, second_sol_G.y], axis = 1)
@@ -115,7 +112,7 @@ def cost_function(b, yG_vec, yI_vec):
     first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(b, ))
 
     # Simulate the injection
-    x2 = first_sol_qual.y[:, -1] + [0, 10000, 0, 0, 0, 0, 0]
+    x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0, 0, 0]
 
     # Solve ODE-system after 20 miunutes with injection
     second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (b, ))
@@ -145,35 +142,36 @@ def cost_function(b, yG_vec, yI_vec):
     range_E = [0, 500]
     range_F = [0, 500]
 
+    penalty = 10000
 
     if any(G_model) > np.max(range_G):
-       squared_sum += 100
+       squared_sum += penalty
     if any(G_model) < np.min(range_G):
-       squared_sum += 100
+       squared_sum += penalty
     if any(I_model) > np.max(range_I):
-       squared_sum += 100
+       squared_sum += penalty
     if any(I_model) < np.min(range_I):
-       squared_sum += 100
+       squared_sum += penalty
     if any(C_model) > np.max(range_C):
-       squared_sum += 100
+       squared_sum += penalty
     if any(C_model) < np.min(range_C):
-       squared_sum += 100
+       squared_sum += penalty
     if any(M_model) > np.max(range_M):
-       squared_sum += 100
+       squared_sum += penalty
     if any(M_model) < np.min(range_M):
-       squared_sum += 100
+       squared_sum += penalty
     if any(H_model) > np.max(range_H):
-       squared_sum += 100
+       squared_sum += penalty
     if any(H_model) < np.min(range_H):
-       squared_sum += 100
+       squared_sum += penalty
     if any(E_model) > np.max(range_E):
-       squared_sum += 100
+       squared_sum += penalty
     if any(E_model) < np.min(range_E):
-       squared_sum += 100
+       squared_sum += penalty
     if any(F_model) > np.max(range_F):
-       squared_sum += 100
+       squared_sum += penalty
     if any(F_model) < np.min(range_F):
-       squared_sum += 100
+       squared_sum += penalty
     
 
     # Calculate cost-function  
@@ -184,7 +182,7 @@ def cost_function(b, yG_vec, yI_vec):
 ## Hypercube set up
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
-start = np.array(lhsmdu.sample(8, 1)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
+start = np.array(lhsmdu.sample(8, 10)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
 para, samples = start.shape
 
@@ -194,30 +192,40 @@ para_int = [0, 500]
 minimum = (np.inf, None)
 
 # Bounds for the model
-bound_low = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+bound_low = np.repeat(0.0, para)
 bound_upp = np.repeat(np.inf, para)
 bounds = Bounds(bound_low, bound_upp)
 
-def callback(xk):
-    print('Current optimal parameters')
-    print(xk)
+fig = plt.figure()
 
+os.makedirs("logs", exist_ok=True)
+filename = f"logs/{datetime.datetime.utcnow()}.log"
 
+for n in tqdm(range(samples)):
+    k0 = start[:,n] * para_int[1]
 
-for n in range(samples):
-    k1 = start[0,n] * para_int[1]
-    k2 = start[1,n] * para_int[1]
-    k3 = start[2,n] * para_int[1]
-    k4 = start[3,n] * para_int[1]
-    k5 = start[4,n] * para_int[1]
-    k6 = start[5,n] * para_int[1]
-    k7 = start[6,n] * para_int[1]
-    k8 = start[7,n] * para_int[1]
-    
-    res = minimize(cost_function, [k1, k2, k3, k4, k5, k6, k7, k8], method='Powell', args = (cG_vec, cI_vec), bounds=bounds, callback = callback) #lägg in constraints här 
+    try:
+        res = minimize(
+            fun = cost_function, 
+            x0 = k0,
+            method='Powell', 
+            args = (cG_vec, cI_vec), 
+            bounds=bounds, 
+            tol=0.1,
+            options = {'disp' : True},
+        ) #lägg in constraints här 
+    except ValueError as err:
+        msg = f"Start values: {k0}\nLed to negative solution: {err}"
+        with open(filename, "a") as f:
+            f.writelines([f"Failed!\n", msg])
+        print(msg)
+        continue
 
     if res.fun < minimum[0]:
         minimum = (res.fun, res.x)
+
+    with open(filename, "a") as f:
+        f.writelines([f"Success!", f"Found solution: {res.x}"])
 
 # Hämta modellen
 # Start concentration, timespan   
@@ -237,7 +245,7 @@ x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0, 0, 0]
 # Solve ODE-system after 20 miunutes with injection
 second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (minimum[1], ))
 
-sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 0)
+sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 1)
 time_span = np.concatenate([first_sol_qual.t, second_sol_qual.t])
 
 G_model = sol_qual[0]
@@ -260,7 +268,7 @@ print(minimum[0])
 
 def sensitivity(b,t,x):
    # Calcualte the sensitivity matrix using the optimal 
-    h = np.sqrt(np.finfo(np.float).eps) # Maskintoleransen, vår steglängd för finita differen 
+    h = np.sqrt(np.finfo(float).eps) # Maskintoleransen, vår steglängd för finita differen 
     b_par = len(b)
     t_len = len(t)
     # Sensitivity analysis for each time step
@@ -353,7 +361,7 @@ plt.title("Glucose in plasma")
 path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
-    os.mkdir(path_result_dir)  # Create a new directory if not existing
+    os.makedirs(path_result_dir, exist_ok=True)  # Create a new directory if not existing
 path_fig = path_result_dir + "/plot_glucose.jpg"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
