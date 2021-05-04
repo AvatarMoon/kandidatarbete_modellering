@@ -52,6 +52,9 @@ def open_loop(t,x,b):
 
     # x[x < 0] = 0.0  
 
+    # Scaling factor for units
+    scal_factor = 1e-9
+
     # Concentrations in the model as input 
     G, I, C, M, H, E, F = x
 
@@ -59,13 +62,13 @@ def open_loop(t,x,b):
     dG = k4*C + k1*H - k2*G*I
 
     # Insulin plasma [2]
-    dI = k3*G - k2*I*G*(10**-9)
+    dI = k3*G - k2*I*G*scal_factor
 
     # GLucose liver [3]
-    dC = -k4*C + k6*(10**-9)*E + k7*F
+    dC = -k4*C + k6*scal_factor*E + k7*F
 
     # Glucose musle [4]
-    dM = k2*(10**-9)*G*I - k5*M
+    dM = k2*scal_factor*G*I - k5*M
 
     # Glucose intake [5]
     dH = -k1*H

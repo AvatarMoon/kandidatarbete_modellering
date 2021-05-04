@@ -221,7 +221,7 @@ inj = 2742
 first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(minimum[1], ))
 
 # Simulate the injection
-x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0, 0, 0]
+x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0]
 
 # Solve ODE-system after 20 miunutes with injection
 second_sol_qual = integrate.solve_ivp(open_loop, [20,tG_vec[-1]], x2, method = "Radau", args = (minimum[1], ))
