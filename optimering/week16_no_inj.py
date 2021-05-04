@@ -209,7 +209,7 @@ for n in range(samples):
 # Hämta modellen
 # Start concentration, timespan   
 
-x0 = [30, 100, 34, 60, 70]  # G, I, C, M, H
+x0 = [30, 100, 100, 60, 70]  # G, I, C, M, H
 
 time_span_G = [tG_vec[0], tG_vec[-1]] 
 time_span_I = [tI_vec[0], tI_vec[-1]] 
