@@ -81,167 +81,7 @@ def open_loop(t,x,b):
 
     return [dG, dI, dC, dM, dH, dE, dF]
 
- 
-
-def cost_function(b, yG_vec, yI_vec):
-    if(any(b <= 0)):
-        raise ValueError(f"{b}")
-
-   # Calculates the target function for a model based on maximumlikelihood 
-
-    # Start concentration, timespan   
-    x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
-    
-    #Injection of insulin
-    inj = 2742
-
-    # Solve ODE-system until 20 minutes
-    first_sol_G = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tG_1)
-    first_sol_I = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tI_1) 
-    
-    # Simulate injection of insulin
-    x1_G = first_sol_G.y[:,-1] + [0, inj, 0, 0, 0, 0, 0]
-    x1_I = first_sol_I.y[:,-1] + [0, inj, 0, 0, 0, 0, 0]
-
-    # Solve ODE-system after injection
-    second_sol_G = integrate.solve_ivp(open_loop, time_span_G2, x1_G, method="Radau", args=(b, ), t_eval = tG_2)
-    second_sol_I = integrate.solve_ivp(open_loop, time_span_I2, x1_I, method="Radau", args=(b, ), t_eval = tI_2)
-
-    # The solution for the ODE-system over tG_vec and tI_vec
-    sol_G = np.concatenate([first_sol_G.y, second_sol_G.y], axis = 1)
-    sol_I = np.concatenate([first_sol_I.y, second_sol_I.y], axis = 1)
-     
-    # Solve ODE-system qualitative
-    first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(b, ))
-
-    # Simulate the injection
-    x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0, 0, 0]
-
-    # Solve ODE-system after 20 miunutes with injection
-    second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (b, ))
-
-    sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 1)
-
-    G_model = sol_qual[0]
-    I_model = sol_qual[1]
-    C_model = sol_qual[2]
-    M_model = sol_qual[3]
-    H_model = sol_qual[4]
-    E_model = sol_qual[5]
-    F_model = sol_qual[6]
-
-    # Extract G and I model concentrations at t-points tG_vec and tI_vec
-    yG_model = sol_G[0] 
-    yI_model = sol_I[1] 
-
-    # Build bounds for the concentrations and punnish the cost-func. if it cross the bounds
-    squared_sum = 0.0
-
-    range_G = [0, 500] # mM 
-    range_I = [0, 5000] #pM 
-    range_C = [0, 10000] # mmol 
-    range_M = [0, 500] # mmol
-    range_H = [0, 500] # mmol
-    range_E = [0, 500]
-    range_F = [0, 500]
-
-    penalty = 10000
-
-    if any(G_model) > np.max(range_G):
-       squared_sum += penalty
-    if any(G_model) < np.min(range_G):
-       squared_sum += penalty
-    if any(I_model) > np.max(range_I):
-       squared_sum += penalty
-    if any(I_model) < np.min(range_I):
-       squared_sum += penalty
-    if any(C_model) > np.max(range_C):
-       squared_sum += penalty
-    if any(C_model) < np.min(range_C):
-       squared_sum += penalty
-    if any(M_model) > np.max(range_M):
-       squared_sum += penalty
-    if any(M_model) < np.min(range_M):
-       squared_sum += penalty
-    if any(H_model) > np.max(range_H):
-       squared_sum += penalty
-    if any(H_model) < np.min(range_H):
-       squared_sum += penalty
-    if any(E_model) > np.max(range_E):
-       squared_sum += penalty
-    if any(E_model) < np.min(range_E):
-       squared_sum += penalty
-    if any(F_model) > np.max(range_F):
-       squared_sum += penalty
-    if any(F_model) < np.min(range_F):
-       squared_sum += penalty
-    
-
-    # Calculate cost-function  
-    squared_sum = np.sum((yG_model - yG_vec)**2) + np.sum((yI_model -  yI_vec)**2) 
-
-    return squared_sum 
-
-## Hypercube set up
-randSeed = 2 # random number of choice
-lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
-start = np.array(lhsmdu.sample(8, 10)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
-
-para, samples = start.shape
-
-## intervals for the parameters
-para_int = [0, 0.001, 0.01, 0.1, 1, 10, 100, 500]
-
-minimum = (np.inf, None)
-
-# Bounds for the model
-bound_low = np.repeat(0.0, para)
-bound_upp = np.repeat(np.inf, para)
-bounds = Bounds(bound_low, bound_upp)
-
-fig = plt.figure()
-
-os.makedirs("logs", exist_ok=True)
-filename = f"logs/{datetime.datetime.utcnow()}.log"
-
-
-for n in tqdm(range(samples)):
-    # k0 = start[:,n] * para_int[1]
-    k1 = start[0,n] * para_int[2]
-    k2 = start[1,n] * para_int[2]
-    k3 = start[2,n] * para_int[1]
-    k4 = start[3,n] * para_int[3]
-    k5 = start[4,n] * para_int[4]
-    k6 = start[5,n] * para_int[2]
-    k7 = start[6,n] * para_int[4]
-    k8 = start[7,n] * para_int[1]
-
-
-    try:
-        res = minimize(
-            fun = cost_function, 
-            x0 = [2.96006764e-01, 4.40631757e-01, 2.52904219e-04, 4.85828349e-01, 3.59388178e-01, 1.56196588e-01, 3.14493610e-01, 1.55209075e-01],
-            method = 'Powell', 
-            args = (cG_vec, cI_vec), 
-            bounds=bounds, 
-            tol=0.1,
-            options = {'disp' : True},
-        ) #lägg in constraints här 
-    except ValueError as err:
-        msg = f"Start values: {k0}\nLed to negative solution: {err}"
-        with open(filename, "a") as f:
-            f.writelines([f"Failed!\n", msg])
-        print(msg)
-        continue
-
-    if res.fun < minimum[0]:
-        minimum = (res.fun, res.x)
-
-    with open(filename, "a") as f:
-        f.writelines([f"Success!", f"Found solution: {res.x}"])
-
-# Hämta modellen
-# Start concentration, timespan   
+b = [2.96006764e-01, 4.40631757e-01, 2.52904219e-04, 4.85828349e-01, 3.59388178e-01, 1.56196588e-01, 3.14493610e-01, 1.55209075e-01]
 x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
 time_span_G = [tG_vec[0], tG_vec[-1]] 
 time_span_I = [tI_vec[0], tI_vec[-1]] 
@@ -250,13 +90,13 @@ time_span_I = [tI_vec[0], tI_vec[-1]]
 inj = 2742
 
 # Solve ODE-system qualitative
-first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(minimum[1], ))
+first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(b, ))
 
 # Simulate the injection
 x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0, 0, 0]
 
 # Solve ODE-system after 20 miunutes with injection
-second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (minimum[1], ))
+second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (b, ))
 
 sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 1)
 time_span = np.concatenate([first_sol_qual.t, second_sol_qual.t])
@@ -268,57 +108,6 @@ M_model = sol_qual[3]
 H_model = sol_qual[4]
 E_model = sol_qual[5]
 F_model = sol_qual[6]
-
-
-
-# Print some statistics  
-print("Optimal value found via Powells-method:") 
-print(minimum[1]) 
-print("Value of cost-function") 
-print(minimum[0]) 
-
-### ~~~~~~ Calculate the sensitivity and identity ~~~~~ ###
-
-def sensitivity(b,t,x):
-   # Calcualte the sensitivity matrix using the optimal 
-    h = np.sqrt(np.finfo(float).eps) # Maskintoleransen, vår steglängd för finita differen 
-    b_par = len(b)
-    t_len = len(t)
-    # Sensitivity analysis for each time step
-    S = np.zeros([b_par, t_len * len(x)])
-    time_span = [t[0], t[-1]]
-
-    for n in range(len(b)):
-        b1 = b.copy() 
-        b2 = b.copy()  
-        b1[n] += h 
-        b2[n] -= h
-
-        Sol_high = integrate.solve_ivp(open_loop, time_span, x, method='LSODA', args=(b1, ), t_eval = t)
-        Sol_low = integrate.solve_ivp(open_loop, time_span, x, method='LSODA', args=(b2, ), t_eval= t)
-        
-        Sol_diff = (Sol_high.y-Sol_low.y)/(2*h)
-
-        S[n,:] = Sol_diff.reshape(t_len*len(x))
-
-    return S
-
-S = sensitivity(minimum[1], tG_vec , x0)
-
-# Fisher matrix to make the covariance matrix
-Fisher = 2 * S @ S.transpose()
-
-cov_mat = Fisher.transpose()
-
-# Identification of the parameters
-d_cov = np.diag(cov_mat)
-
-var_coeff = np.square(d_cov)/minimum[1]
-
-print('Identification for each parameters')
-print(var_coeff)
-
-### ~~~~~~ Plot model, data, constrains and residual ~~~~~~~ ###
 
 # Time span
 xT_coordinates = [tG_vec[0],tG_vec[-1]]
@@ -371,7 +160,7 @@ plt.title("Glucose in plasma")
 
 # Sparar figur i plot constrains, glukos
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
+path_result_dir = "optimering/Bilder/test_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.makedirs(path_result_dir, exist_ok=True)  # Create a new directory if not existing
@@ -398,7 +187,7 @@ plt.title("Insulin i plasman")
 
 # Sparar figur i plot constrains, insulin
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
+path_result_dir = "optimering/Bilder/test_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -418,7 +207,7 @@ plt.title("Glukos i levern")
 
 # Sparar figur i plot constrains, glukos i levern
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
+path_result_dir = "optimering/Bilder/test_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -439,7 +228,7 @@ plt.title("Glukos i muskeln")
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
+path_result_dir = "optimering/Bilder/test_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -461,7 +250,7 @@ plt.title("Glukos intag")
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
+path_result_dir = "optimering/Bilder/test_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -482,7 +271,7 @@ plt.title("Glukagon i plasma")
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
+path_result_dir = "optimering/Bilder/test_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -503,7 +292,7 @@ plt.title("Fettreserver")
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
+path_result_dir = "optimering/Bilder/test_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
