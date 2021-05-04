@@ -307,11 +307,7 @@ yM2_coordinates = [140,140]  # mmol (human)
 
 # Constrains glucose intake (H)
 yH1_coordinates = [0,0]    
-yH2_coordinates = [500,500]  
-
-# Constrains glucagon in plasma (E)
-
-
+yH2_coordinates = [500,500]
 
 # plotta glukos
 lw = 2.0
