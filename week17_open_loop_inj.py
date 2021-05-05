@@ -207,20 +207,21 @@ filename = f"logs/{datetime.datetime.utcnow()}.log"
 
 for n in tqdm(range(samples)):
     # k0 = start[:,n] * para_int[1]
-    k1 = start[0,n] * para_int[2]
-    k2 = start[1,n] * para_int[2]
-    k3 = start[2,n] * para_int[1]
-    k4 = start[3,n] * para_int[3]
-    k5 = start[4,n] * para_int[4]
-    k6 = start[5,n] * para_int[2]
-    k7 = start[6,n] * para_int[4]
-    k8 = start[7,n] * para_int[1]
+    k1 = start[0,n] * para_int[7]
+    k2 = start[1,n] * para_int[7]
+    k3 = start[2,n] * para_int[7]
+    k4 = start[3,n] * para_int[7]
+    k5 = start[4,n] * para_int[7]
+    k6 = start[5,n] * para_int[7]
+    k7 = start[6,n] * para_int[7]
+    k8 = start[7,n] * para_int[7]
 
+    k0 = [k1, k2, k3, k4, k5, k6, k7, k8]
 
     try:
         res = minimize(
             fun = cost_function, 
-            x0 = [2.96006764e-01, 4.40631757e-01, 2.52904219e-04, 4.85828349e-01, 3.59388178e-01, 1.56196588e-01, 3.14493610e-01, 1.55209075e-01],
+            x0 = k0,
             method = 'Powell', 
             args = (cG_vec, cI_vec), 
             bounds=bounds, 
@@ -361,7 +362,7 @@ line2, = plt.plot(xT_coordinates, yG2_coordinates, linestyle=":", linewidth=lw, 
 line3, = plt.plot(data_G['time'].values, data_G['conc'].values, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, G_model, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
-plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
+plt.xlabel("time [min]", fontsize=12), plt.ylabel("Glukos koncentration [mM]", fontsize=12)
 plt.title("Glucose in plasma")
 
 # # Residual plot for glucose
@@ -375,7 +376,7 @@ path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.makedirs(path_result_dir, exist_ok=True)  # Create a new directory if not existing
-path_fig = path_result_dir + "/plot_glucose.jpg"
+path_fig = path_result_dir + "/plot_glucose.pdf"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
 
@@ -388,7 +389,7 @@ line2, = plt.plot(xT_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, 
 line3, = plt.plot(data_I['time'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
-plt.xlabel("time", fontsize=12), plt.ylabel("Insulin koncentration", fontsize=12)
+plt.xlabel("time [min]", fontsize=12), plt.ylabel("Insulin koncentration [pM]", fontsize=12)
 plt.title("Insulin i plasman")
 
 # # Residual plot for insulin
@@ -402,18 +403,18 @@ path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
-path_fig = path_result_dir + "/plot_insulin.jpg"
+path_fig = path_result_dir + "/plot_insulin.pdf"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
 
 # plotta Glukos i lever 
 lw = 2.0
 plot1 = plt.figure(3)
-line1, = plt.plot(xT_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xT_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
-line3, = plt.plot(time_span, C_model, label = 'Glukos i levern', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
-plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
+# line1, = plt.plot(xT_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+# line2, = plt.plot(xT_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, C_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.legend()
+plt.xlabel("time [min]", fontsize=12), plt.ylabel("Glukos koncentration [mM]", fontsize=12)
 plt.title("Glukos i levern")
 
 # Sparar figur i plot constrains, glukos i levern
@@ -422,18 +423,18 @@ path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
-path_fig = path_result_dir + "/plot_glukoslevern.jpg"
+path_fig = path_result_dir + "/plot_glukoslevern.pdf"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
 
 # plotta Glukos i muskeln 
 lw = 2.0
 plot1 = plt.figure(4)
-line1, = plt.plot(xT_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xT_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
-line3, = plt.plot(time_span, M_model, label = 'Glukos i muskeln', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
-plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
+# line1, = plt.plot(xT_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+# line2, = plt.plot(xT_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, M_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.legend()
+plt.xlabel("time [min]", fontsize=12), plt.ylabel("Glukos koncentration [mM]", fontsize=12)
 plt.title("Glukos i muskeln")
 
 
@@ -443,7 +444,7 @@ path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
-path_fig = path_result_dir + "/plot_glukosmuskeln.jpg"
+path_fig = path_result_dir + "/plot_glukosmuskeln.pdf"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
 
@@ -451,11 +452,11 @@ plt.savefig(path_fig)
 # plotta Glukos inktake 
 lw = 2.0
 plot1 = plt.figure(5)
-line1, = plt.plot(xT_coordinates, yH1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xT_coordinates, yH2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
-line3, = plt.plot(time_span, H_model, label = 'Glukos intag', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
-plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
+# line1, = plt.plot(xT_coordinates, yH1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+# line2, = plt.plot(xT_coordinates, yH2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, H_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.legend()
+plt.xlabel("time [min]", fontsize=12), plt.ylabel("Glukos koncentration [mM]", fontsize=12)
 plt.title("Glukos intag")
 
 
@@ -465,18 +466,18 @@ path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
-path_fig = path_result_dir + "/plot_glukos_intag.jpg"
+path_fig = path_result_dir + "/plot_glukos_intag.pdf"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
 
 # plotta Glucagon in plasma
 lw = 2.0
 plot1 = plt.figure(6)
-line1, = plt.plot(xT_coordinates, yE1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xT_coordinates, yE2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
-line3, = plt.plot(time_span, E_model, label = 'Glukagon i plasma', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
-plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
+# line1, = plt.plot(xT_coordinates, yE1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+# line2, = plt.plot(xT_coordinates, yE2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, E_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.legend()
+plt.xlabel("time [min]", fontsize=12), plt.ylabel("Glukos koncentration [pM]", fontsize=12)
 plt.title("Glukagon i plasma")
 
 
@@ -486,18 +487,18 @@ path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
-path_fig = path_result_dir + "/plot_glucagon_plasma.jpg"
+path_fig = path_result_dir + "/plot_glucagon_plasma.pdf"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
 
 # plotta Fettreserve 
 lw = 2.0
 plot1 = plt.figure(7)
-line1, = plt.plot(xT_coordinates, yF1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
-line2, = plt.plot(xT_coordinates, yF2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
-line3, = plt.plot(time_span, F_model, label = 'Fettreserv', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.legend((line3, line2, line1), ("Modell", "Högsta gräns", "Lägsta gräns"))
-plt.xlabel("time", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
+# line1, = plt.plot(xT_coordinates, yF1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+# line2, = plt.plot(xT_coordinates, yF2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, F_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.legend()
+plt.xlabel("time [min]", fontsize=12), plt.ylabel("Glukos koncentration [mM]", fontsize=12)
 plt.title("Fettreserver")
 
 
@@ -507,6 +508,6 @@ path_result_dir = "optimering/Bilder/plot_week17_open_loop_model"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
-path_fig = path_result_dir + "/plot_fettreserve.jpg"
+path_fig = path_result_dir + "/plot_fettreserve.pdf"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
