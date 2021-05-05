@@ -52,7 +52,7 @@ def open_loop(t,x,b):
     dG = k4*C*I + k1*H - k2*G
 
     # Insulin plasma [2]
-    dI = k3*G - k4*G*I
+    dI = k3*G - k2*G*I
 
     # GLucose liver [3]
     dC = -k4*C*I + L

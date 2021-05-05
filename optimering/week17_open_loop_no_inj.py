@@ -24,17 +24,6 @@ tI_vec = data_I['time'].values
 cG_vec = data_G['conc'].values
 cI_vec = data_I['conc'].values 
 
-# # Split the time-vectors at timepoint 20 minutes
-# index_G = np.searchsorted(tG_vec, 20)
-# index_I = np.searchsorted(tI_vec, 20)
-
-# tG_1 = tG_vec[0:index_G]
-# tG_2 = tG_vec[index_G:]
-
-# tI_1 = tI_vec[0:index_I]
-# tI_2 = tI_vec[index_I:]
-
-
 def open_loop(t,x,b): 
 
     k1, k2, k3, k4, k5, k6, k7, k8 = b
@@ -48,23 +37,26 @@ def open_loop(t,x,b):
 
     #L= 5000 # Startvärde glukos i levern
 
+    # Scaling factor for units
+    scal_factor = 1e-9
+
     # Glucose plasma [1]
-    dG = k4*C + k1*H - k2*G*I
+    dG = k4*C + k1*H - k2*G*I*scal_factor
 
     # Insulin plasma [2]
-    dI = k3*G - k2*G*I*10**(-9)
+    dI = k3*G - k2*G*I*scal_factor
 
     # GLucose liver [3]
-    dC = -k4*C + k6*E*10**(-9) + k7*F
+    dC = -k4*C + k6*E*scal_factor + k7*F 
 
     # Glucose musle [4]
-    dM = k2*G*I*10**(-9) - k5*M
+    dM = k2*G*I*scal_factor - k5*M
 
     # Glucose intake [5]
     dH = -k1*H
 
     # Glucagon [6]
-    dE = k8 - k2*G*E 
+    dE = k8 - k2*G*E*scal_factor 
 
     # Fettreserv [7]
     dF = -k7*F
@@ -80,14 +72,6 @@ def cost_function(b, yG_vec, yI_vec):
     time_span_G = [tG_vec[0], tG_vec[-1]] 
     time_span_I = [tI_vec[0], tI_vec[-1]] 
 
-    # x0 = [60, 3, 10000, 2, 70, 500]  # G, I, C, M, H, E 
-    # time_span_G1 = [tG_1[0], tG_1[-1]]
-    # time_span_G2 = [tG_2[0], tG_2[-1]] 
-    # time_span_I1 = [tI_1[0], tI_1[-1]]
-    # time_span_I2 = [tI_2[0], tI_2[-1]]
-    
-    #Injection
-    #inj = 2742
 
     # Step 1: Solve ODE-system at points tG_vec
     sol_G = integrate.solve_ivp(open_loop, time_span_G, x0, method="Radau", args=(b, ), t_eval=tG_vec) 
@@ -105,39 +89,6 @@ def cost_function(b, yG_vec, yI_vec):
     E_model = sol_qual.y[5]
     F_model = sol_qual.y[6]
 
-
-    # # Solve ODE-system until 20 minutes
-    # first_sol_G = integrate.solve_ivp(open_loop, time_span_G1, x0, method="LSODA", args=(b, ), t_eval=tG_1) 
-    # first_sol_I = integrate.solve_ivp(open_loop, time_span_I1, x0, method="LSODA", args=(b, ), t_eval=tI_1) 
-    
-    # # Simulate injection of insulin
-    # x1 = first_sol_G.y[:,-1] + [0, inj, 0, 0, 0, 0]
-    
-    # # Solve ODE-system after 20 miunutes
-    # second_sol_G = integrate.solve_ivp(open_loop, time_span_G2, x1, method="LSODA", args=(b, ), t_eval = tG_2)
-    # second_sol_I = integrate.solve_ivp(open_loop, time_span_I2, x1, method="LSODA", args=(b, ), t_eval = tI_2)
-
-    # # The solution for the ODE-system over tG_vec and tI_vec
-    # sol_G = np.concatenate([first_sol_G.y, second_sol_G.y], axis = 1)
-    # sol_I = np.concatenate([first_sol_I.y, second_sol_I.y], axis = 1)
-     
-    # # Solve ODE-system qualitative
-    # first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="LSODA", args=(b, ))
-
-    # # Simulate the injection
-    # x2 = first_sol_qual.y[:, -1] + [0, 10000, 0, 0, 0, 0]
-
-    # # Solve ODE-system after 20 miunutes with injection
-    # second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "LSODA", args = (b, ))
-
-    # sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 1)
-
-    # G_model = sol_qual[0]
-    # I_model = sol_qual[1]
-    # C_model = sol_qual[2]
-    # M_model = sol_qual[3]
-    # H_model = sol_qual[4]
-    # E_model = sol_qual[5]
 
     # Extract G and I model concentrations at t-points tG_vec and tI_vec
     yG_model = sol_G.y[0] 
@@ -194,7 +145,7 @@ def cost_function(b, yG_vec, yI_vec):
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
 
-start = np.array(lhsmdu.sample(8, 1)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
+start = np.array(lhsmdu.sample(8, 10)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
 para, samples = start.shape
 
@@ -235,9 +186,6 @@ x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F
 time_span_G = [tG_vec[0], tG_vec[-1]] 
 time_span_I = [tI_vec[0], tI_vec[-1]] 
 
-#Injection
-#inj = 2742
-
 # Solve ODE-system qualitative
 sol_qual = integrate.solve_ivp(open_loop, time_span_G, x0, method="Radau", args=(minimum[1], ))
 
@@ -251,70 +199,12 @@ E_model = sol_qual.y[5]
 F_model = sol_qual.y[6]
 
 
-
-# # Simulate the injection
-# x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0, 0]
-
-# # Solve ODE-system after 20 miunutes with injection
-# second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "LSODA", args = (minimum[1], ))
-
-# sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 1)
-
-# G_model = sol_qual[0]
-# I_model = sol_qual[1]
-# C_model = sol_qual[2]
-# M_model = sol_qual[3]
-# H_model = sol_qual[4]
-# E_model = sol_qual[5]
-
-
-
 # Print some statistics  
 print("Optimal value found via Powells-method:") 
 print(minimum[1]) 
 print("Value of cost-function") 
 print(minimum[0]) 
 
-### ~~~~~~ Calculate the sensitivity and identity ~~~~~ ###
-
-# def sensitivity(b,t,x):
-#    # Calcualte the sensitivity matrix using the optimal 
-#     h = np.sqrt(np.finfo(np.float).eps) # Maskintoleransen, vår steglängd för finita differen 
-#     b_par = len(b)
-#     t_len = len(t)
-#     # Sensitivity analysis for each time step
-#     S = np.zeros([b_par, t_len * len(x)])
-#     time_span = [t[0], t[-1]]
-
-#     for n in range(len(b)):
-#         b1 = b.copy() 
-#         b2 = b.copy()  
-#         b1[n] += h 
-#         b2[n] -= h
-
-#         Sol_high = integrate.solve_ivp(open_loop, time_span, x, method='LSODA', args=(b1, ), t_eval = t)
-#         Sol_low = integrate.solve_ivp(open_loop, time_span, x, method='LSODA', args=(b2, ), t_eval= t)
-        
-#         Sol_diff = (Sol_high.y-Sol_low.y)/(2*h)
-
-#         S[n,:] = Sol_diff.reshape(t_len*len(x))
-
-#     return S
-
-# S = sensitivity(minimum[1], tG_vec , x0)
-
-# # Fisher matrix to make the covariance matrix
-# Fisher = 2 * S @ S.transpose()
-
-# cov_mat = Fisher.transpose()
-
-# # Identification of the parameters
-# d_cov = np.diag(cov_mat)
-
-# var_coeff = np.square(d_cov)/minimum[1]
-
-# print('Identification for each parameters')
-# print(var_coeff)
 
 ### ~~~~~~ Plot model, data, constrains and residual ~~~~~~~ ###
 

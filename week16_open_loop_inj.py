@@ -57,19 +57,19 @@ def open_loop(t,x,b):
     L= 5000 # Startvärde glukos i levern
 
     # Scaling factor
-    #scal_factor = 1e-9
+    scal_factor = 1e-9
 
     # Glucose plasma [1]
-    dG = k4*C*I + k1*H - k2*G
+    dG = k4*C*I*scal_factor + k1*H - k2*G
 
     # Insulin plasma [2]
-    dI = k3*G - k4*G*I
+    dI = k3*G - k2*G*I*scal_factor
 
     # GLucose liver [3]
-    dC = -k4*C*I + L
+    dC = -k4*C + L
 
     # Glucose musle [4]
-    dM = k2*G - k5*M
+    dM = k2*G*I*scal_factor - k5*M
 
     # Glucose intake [5]
     dH = -k1*H
@@ -192,7 +192,7 @@ filename = filename.replace(":",".")
 for n in tqdm(range(samples)):
     
     k1 = start[0,n] * para_int[2]
-    k2 = start[1,n] * para_int[4]
+    k2 = start[1,n] * para_int[2]
     k3 = start[2,n] * para_int[7]
     k4 = start[3,n] * para_int[2]
     k5 = start[4,n] * para_int[7]
