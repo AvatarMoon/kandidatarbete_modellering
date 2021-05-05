@@ -62,7 +62,7 @@ def open_loop(t,x,b):
     G, I, C, M, H, E, F = x
 
     # Glucose plasma [1]
-    dG = k4*C + k1*H - k2*G*I
+    dG = k4*C + k1*H - k2*G*I*scal_factor
 
     # Insulin plasma [2]
     dI = k3*G - k2*I*G*scal_factor
@@ -77,7 +77,7 @@ def open_loop(t,x,b):
     dH = -k1*H
 
     # Glucagon in plasma [6]
-    dE = k8 - k2*E*G 
+    dE = k8 - k2*E*G*scal_factor
 
     # Fettreserve [7]
     dF = -k7*F
