@@ -9,7 +9,8 @@ k = lhsmdu.createRandomStandardUniformMatrix(2,20) # Monte Carlo Sampling
 
 
 fig1 = plt.figure(1)
-plt.scatter([k[0]], [k[1]], color=cb_palette1[0])
+plt.scatter([k[0]], [k[1]], color=cb_palette1[0], label = 'Model')
+plt.legend()
 plt.title("Random")
 
 # Write the result to file
