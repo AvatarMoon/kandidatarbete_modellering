@@ -203,6 +203,8 @@ fig = plt.figure()
 
 os.makedirs("logs", exist_ok=True)
 filename = f"logs/{datetime.datetime.utcnow()}.log"
+filename = filename.replace(" ","_")
+filename = filename.replace(":",".")
 
 
 for n in tqdm(range(samples)):
