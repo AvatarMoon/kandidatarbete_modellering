@@ -62,22 +62,22 @@ def open_loop(t,x,b):
     G, I, C, M, H, E, F = x
 
     # Glucose plasma [1]
-    dG = k4*C + k1*H - k2*G*I*scal_factor
+    dG = k4*C + k1*H - k2*G*I
 
     # Insulin plasma [2]
-    dI = k3*G - k2*I*G*scal_factor
+    dI = k3*G - k2*I*G
 
     # GLucose liver [3]
-    dC = -k4*C + k6*scal_factor*E + k7*F
+    dC = -k4*C + k6*E + k7*F
 
     # Glucose musle [4]
-    dM = k2*scal_factor*G*I - k5*M
+    dM = k2*G*I - k5*M
 
     # Glucose intake [5]
     dH = -k1*H
 
     # Glucagon in plasma [6]
-    dE = k8 - k2*E*G*scal_factor
+    dE = k8 - k2*E*G
 
     # Fettreserve [7]
     dF = -k7*F
@@ -99,8 +99,8 @@ def cost_function(b, yG_vec, yI_vec):
     inj = 7.3125E-07
 
     # Solve ODE-system until 20 minutes
-    first_sol_G = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tG_1)
-    first_sol_I = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tI_1) 
+    first_sol_G = integrate.solve_ivp(open_loop, time_span1, x0, method="LSODA", args=(b, ), t_eval=tG_1)
+    first_sol_I = integrate.solve_ivp(open_loop, time_span1, x0, method="LSODA", args=(b, ), t_eval=tI_1) 
     
     # Simulate injection of insulin
     x1_G = [first_sol_G.y[0,-1], inj, first_sol_G.y[2,-1], first_sol_G.y[3,-1], first_sol_G.y[4,-1], first_sol_G.y[5,-1], first_sol_G.y[6,-1]]
@@ -108,21 +108,21 @@ def cost_function(b, yG_vec, yI_vec):
 
     
     # Solve ODE-system after injection
-    second_sol_G = integrate.solve_ivp(open_loop, time_span_G2, x1_G, method="Radau", args=(b, ), t_eval = tG_2)
-    second_sol_I = integrate.solve_ivp(open_loop, time_span_I2, x1_I, method="Radau", args=(b, ), t_eval = tI_2)
+    second_sol_G = integrate.solve_ivp(open_loop, time_span_G2, x1_G, method="LSODA", args=(b, ), t_eval = tG_2)
+    second_sol_I = integrate.solve_ivp(open_loop, time_span_I2, x1_I, method="LSODA", args=(b, ), t_eval = tI_2)
 
     # The solution for the ODE-system over tG_vec and tI_vec
     sol_G = np.concatenate([first_sol_G.y, second_sol_G.y], axis = 1)
     sol_I = np.concatenate([first_sol_I.y, second_sol_I.y], axis = 1)
      
     # Solve ODE-system qualitative
-    first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(b, ))
+    first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="LSODA", args=(b, ))
 
     # Simulate the injection
     x2 = [first_sol_qual.y[0, -1], inj, first_sol_qual.y[2, -1], first_sol_qual.y[3, -1], first_sol_qual.y[4, -1], first_sol_qual.y[5, -1], first_sol_qual.y[6, -1]]
 
     # Solve ODE-system after 20 miunutes with injection
-    second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (b, ))
+    second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "LSODA", args = (b, ))
 
     sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 1)
 
@@ -142,47 +142,47 @@ def cost_function(b, yG_vec, yI_vec):
     squared_sum = 0.0
 
     range_G = [0, 500] # mM 
-    range_I = [0, 5000] #pM 
+    range_I = [0, 7.3125e-07*2] #mM 
     range_C = [0, 10000] # mmol 
     range_M = [0, 500] # mmol
     range_H = [0, 500] # mmol
-    range_E = [0, 500]
+    range_E = [0, 500e-9]
     range_F = [0, 500]
 
     penalty = 10000
 
-    if any(G_model) > np.max(range_G):
+    if any(G_model > np.max(range_G)):
        squared_sum += penalty
-    if any(G_model) < np.min(range_G):
+    if any(G_model < np.min(range_G)):
        squared_sum += penalty
-    if any(I_model) > np.max(range_I):
+    if any(I_model > np.max(range_I)):
        squared_sum += penalty
-    if any(I_model) < np.min(range_I):
+    if any(I_model < np.min(range_I)):
        squared_sum += penalty
-    if any(C_model) > np.max(range_C):
+    if any(C_model > np.max(range_C)):
        squared_sum += penalty
-    if any(C_model) < np.min(range_C):
+    if any(C_model < np.min(range_C)):
        squared_sum += penalty
-    if any(M_model) > np.max(range_M):
+    if any(M_model > np.max(range_M)):
        squared_sum += penalty
-    if any(M_model) < np.min(range_M):
+    if any(M_model < np.min(range_M)):
        squared_sum += penalty
-    if any(H_model) > np.max(range_H):
+    if any(H_model > np.max(range_H)):
        squared_sum += penalty
-    if any(H_model) < np.min(range_H):
+    if any(H_model < np.min(range_H)):
        squared_sum += penalty
-    if any(E_model) > np.max(range_E):
+    if any(E_model > np.max(range_E)):
        squared_sum += penalty
-    if any(E_model) < np.min(range_E):
+    if any(E_model < np.min(range_E)):
        squared_sum += penalty
-    if any(F_model) > np.max(range_F):
+    if any(F_model > np.max(range_F)):
        squared_sum += penalty
-    if any(F_model) < np.min(range_F):
+    if any(F_model < np.min(range_F)):
        squared_sum += penalty
     
 
     # Calculate cost-function  
-    squared_sum = np.sum((yG_model - yG_vec)**2) + np.sum((yI_model -  yI_vec)**2) 
+    squared_sum += np.sum((yG_model - yG_vec)**2) + np.sum((yI_model -  yI_vec)**2) 
 
     return squared_sum 
 
