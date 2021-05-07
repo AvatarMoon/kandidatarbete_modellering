@@ -43,7 +43,7 @@ plt.savefig(path_fig)
 lw = 2.0
 plot1 = plt.figure(2)
 line1, = plt.plot(tI_vec, cI_vec, linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [pM]", fontsize=15)
+plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
 plt.title("Data insulin i plasma", fontsize=15)
 
 # Sparar figur i plot constrains, glukos i muskeln
