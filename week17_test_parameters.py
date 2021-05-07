@@ -87,23 +87,26 @@ def open_loop(t,x,b):
  
 
 def cost_function(b, yG_vec, yI_vec):
+    if(any(b <= 0)):
+        raise ValueError(f"{b}")
 
    # Calculates the target function for a model based on maximumlikelihood 
 
     # Start concentration, timespan   
-    x0 = [30, 70, 220, 20, 16, 1300, 400]  # G, I, C, M, H, E, F 
-    
-    #Injection of insulin
-    inj = 2742
+    x0 = [30, 2.2e-8, 34, 60, 70, 50e-9, 400]  # G, I, C, M, H, E, F 
+
+    # Injection
+    inj = 7.3125E-07
 
     # Solve ODE-system until 20 minutes
     first_sol_G = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tG_1)
     first_sol_I = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tI_1) 
     
     # Simulate injection of insulin
-    x1_G = first_sol_G.y[:,-1] + [0, inj, 0, 0, 0, 0, 0]
-    x1_I = first_sol_I.y[:,-1] + [0, inj, 0, 0, 0, 0, 0]
+    x1_G = [first_sol_G.y[0,-1], inj, first_sol_G.y[2,-1], first_sol_G.y[3,-1], first_sol_G.y[4,-1], first_sol_G.y[5,-1], first_sol_G.y[6,-1]]
+    x1_I = [first_sol_I.y[0,-1], inj, first_sol_I.y[2,-1], first_sol_I.y[3,-1], first_sol_I.y[4,-1], first_sol_I.y[5,-1], first_sol_I.y[6,-1]]
 
+    
     # Solve ODE-system after injection
     second_sol_G = integrate.solve_ivp(open_loop, time_span_G2, x1_G, method="Radau", args=(b, ), t_eval = tG_2)
     second_sol_I = integrate.solve_ivp(open_loop, time_span_I2, x1_I, method="Radau", args=(b, ), t_eval = tI_2)
@@ -116,7 +119,7 @@ def cost_function(b, yG_vec, yI_vec):
     first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(b, ))
 
     # Simulate the injection
-    x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0, 0, 0]
+    x2 = [first_sol_qual.y[0, -1], inj, first_sol_qual.y[2, -1], first_sol_qual.y[3, -1], first_sol_qual.y[4, -1], first_sol_qual.y[5, -1], first_sol_qual.y[6, -1]]
 
     # Solve ODE-system after 20 miunutes with injection
     second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (b, ))
@@ -146,7 +149,7 @@ def cost_function(b, yG_vec, yI_vec):
     range_E = [0, 500]
     range_F = [0, 500]
 
-    penalty = 100
+    penalty = 10000
 
     if any(G_model) > np.max(range_G):
        squared_sum += penalty
@@ -182,6 +185,7 @@ def cost_function(b, yG_vec, yI_vec):
     squared_sum = np.sum((yG_model - yG_vec)**2) + np.sum((yI_model -  yI_vec)**2) 
 
     return squared_sum 
+
 
 n_samples = 1000
 
