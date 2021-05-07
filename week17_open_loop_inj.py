@@ -59,22 +59,22 @@ def open_loop(t,x,b):
     G, I, C, M, H, E, F = x
 
     # Glucose plasma [1]
-    dG = k4*C + k1*H - k2*G*I*scal_factor
+    dG = k4*C + k1*H - k2*G*I
 
     # Insulin plasma [2]
-    dI = k3*G - k2*I*G*scal_factor
+    dI = k3*G - k2*I*G
 
     # GLucose liver [3]
-    dC = -k4*C + k6*scal_factor*E + k7*F
+    dC = -k4*C + k6*E + k7*F
 
     # Glucose musle [4]
-    dM = k2*scal_factor*G*I - k5*M
+    dM = k2*G*I - k5*M
 
     # Glucose intake [5]
     dH = -k1*H
 
     # Glucagon in plasma [6]
-    dE = k8 - k2*E*G*scal_factor
+    dE = k8 - k2*E*G
 
     # Fettreserve [7]
     dF = -k7*F
@@ -90,7 +90,7 @@ def cost_function(b, yG_vec, yI_vec):
    # Calculates the target function for a model based on maximumlikelihood 
 
     # Start concentration, timespan   
-    x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
+    x0 = [30, 2.2e-8, 34, 60, 70, 50e-9, 400]  # G, I, C, M, H, E, F 
 
     # Injection
     inj = 7.3125E-07
@@ -139,47 +139,48 @@ def cost_function(b, yG_vec, yI_vec):
     squared_sum = 0.0
 
     range_G = [0, 500] # mM 
-    range_I = [0, 5000] #pM 
+    range_I = [0, 14.2e-7] #pM 
     range_C = [0, 10000] # mmol 
     range_M = [0, 500] # mmol
     range_H = [0, 500] # mmol
     range_E = [0, 500]
     range_F = [0, 500]
 
+    
     penalty = 10000
 
-    if any(G_model) > np.max(range_G):
+    if any(G_model > np.max(range_G)):
        squared_sum += penalty
-    if any(G_model) < np.min(range_G):
+    if any(G_model < np.min(range_G)):
        squared_sum += penalty
-    if any(I_model) > np.max(range_I):
+    if any(I_model > np.max(range_I)):
        squared_sum += penalty
-    if any(I_model) < np.min(range_I):
+    if any(I_model < np.min(range_I)):
        squared_sum += penalty
-    if any(C_model) > np.max(range_C):
+    if any(C_model > np.max(range_C)):
        squared_sum += penalty
-    if any(C_model) < np.min(range_C):
+    if any(C_model < np.min(range_C)):
        squared_sum += penalty
-    if any(M_model) > np.max(range_M):
+    if any(M_model > np.max(range_M)):
        squared_sum += penalty
-    if any(M_model) < np.min(range_M):
+    if any(M_model < np.min(range_M)):
        squared_sum += penalty
-    if any(H_model) > np.max(range_H):
+    if any(H_model > np.max(range_H)):
        squared_sum += penalty
-    if any(H_model) < np.min(range_H):
+    if any(H_model < np.min(range_H)):
        squared_sum += penalty
-    if any(E_model) > np.max(range_E):
+    if any(E_model > np.max(range_E)):
        squared_sum += penalty
-    if any(E_model) < np.min(range_E):
+    if any(E_model < np.min(range_E)):
        squared_sum += penalty
-    if any(F_model) > np.max(range_F):
+    if any(F_model > np.max(range_F)):
        squared_sum += penalty
-    if any(F_model) < np.min(range_F):
+    if any(F_model < np.min(range_F)):
        squared_sum += penalty
     
 
     # Calculate cost-function  
-    squared_sum = np.sum((yG_model - yG_vec)**2) + np.sum((yI_model -  yI_vec)**2) 
+    squared_sum += np.sum((yG_model - yG_vec)**2) + np.sum((yI_model -  yI_vec)**2) 
 
     return squared_sum 
 
@@ -192,7 +193,7 @@ para, samples = start.shape
 
 ## intervals for the parameters
 para_int = [0, 0.001, 0.01, 0.1, 1, 10, 100, 500]
-
+        #   0,   1,    2,    3,  4,  5,  6,   7
 minimum = (np.inf, None)
 
 # Bounds for the model
@@ -210,14 +211,14 @@ filename = filename.replace(":",".")
 
 for n in tqdm(range(samples)):
     # k0 = start[:,n] * para_int[1]
-    k1 = start[0,n] * para_int[3]
-    k2 = start[1,n] * para_int[2]
-    k3 = start[2,n] * para_int[2]
-    k4 = start[3,n] * para_int[2]
-    k5 = start[4,n] * para_int[2]
+    k1 = start[0,n] * para_int[1]
+    k2 = start[1,n] * para_int[5]
+    k3 = start[2,n] * para_int[4]
+    k4 = start[3,n] * para_int[1]
+    k5 = start[4,n] * para_int[6]
     k6 = start[5,n] * para_int[5]
-    k7 = start[6,n] * para_int[2]
-    k8 = start[7,n] * para_int[4]
+    k7 = start[6,n] * para_int[1]
+    k8 = start[7,n] * para_int[6]
 
     k0 = [k1, k2, k3, k4, k5, k6, k7, k8]
 
@@ -333,7 +334,7 @@ yG2_coordinates = [50,50]   #mM (human)
 
 # Constrains insulin (I)
 yI1_coordinates = [0,0]   #pM (human)
-yI2_coordinates = [5000,5000] #pM (human)
+yI2_coordinates = [14.2e-7,14.2e-7] #pM (human)
  
  # Constrains glukos i lever (C) 
 yC1_coordinates = [0,0]  # mmol (human)
@@ -392,7 +393,7 @@ line2, = plt.plot(xT_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, 
 line3, = plt.plot(data_I['time'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [pM]", fontsize=15)
+plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
 plt.title("Insulin i plasman", fontsize=15)
 
 # # Residual plot for insulin
@@ -476,7 +477,7 @@ plot1 = plt.figure(6)
 # line1, = plt.plot(xT_coordinates, yE1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 # line2, = plt.plot(xT_coordinates, yE2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, E_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [pM]", fontsize=15)
+plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
 plt.title("Glukagon i plasma", fontsize=15)
 
 
