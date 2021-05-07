@@ -86,18 +86,18 @@ def cost_function(b, yG_vec, yI_vec):
    # Calculates the target function for a model based on maximumlikelihood 
 
     # Start concentration, timespan   
-    x0 = [30, 100, 100, 60, 200]  # G, I, C, M, H, 
+    x0 = [30, 2.2e-8, 100, 60, 200]  # G, I, C, M, H, 
     
     #Injection of insulin
-    inj = 2742
+    inj = 7.3125E-07
 
     # Solve ODE-system until 20 minutes
     first_sol_G = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tG_1)
     first_sol_I = integrate.solve_ivp(open_loop, time_span1, x0, method="Radau", args=(b, ), t_eval=tI_1) 
     
-    # Simulate injection of insulin
-    x1_G = first_sol_G.y[:,-1] + [0, inj, 0, 0, 0]
-    x1_I = first_sol_I.y[:,-1] + [0, inj, 0, 0, 0]
+   # Simulate injection of insulin
+    x1_G = [first_sol_G.y[0,-1], inj, first_sol_G.y[2,-1], first_sol_G.y[3,-1], first_sol_G.y[4,-1]]
+    x1_I = [first_sol_I.y[0,-1], inj, first_sol_I.y[2,-1], first_sol_I.y[3,-1], first_sol_I.y[4,-1]]
 
     # Solve ODE-system after injection
     second_sol_G = integrate.solve_ivp(open_loop, time_span_G2, x1_G, method="Radau", args=(b, ), t_eval = tG_2)
@@ -111,7 +111,7 @@ def cost_function(b, yG_vec, yI_vec):
     first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(b, ))
 
     # Simulate the injection
-    x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0]
+    x2 = [first_sol_qual.y[0, -1], inj, first_sol_qual.y[2, -1], first_sol_qual.y[3, -1], first_sol_qual.y[4, -1]]
 
     # Solve ODE-system after 20 miunutes with injection
     second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (b, ))
@@ -132,7 +132,7 @@ def cost_function(b, yG_vec, yI_vec):
     squared_sum = 0.0
 
     range_G = [0, 500] # mM 
-    range_I = [0, 5000] #pM 
+    range_I = [0, 1.4e-6] #pM 
     range_C = [0, 10000] # mmol 
     range_M = [0, 500] # mmol
     range_H = [0, 500] # mmol
@@ -225,13 +225,13 @@ for n in tqdm(range(samples)):
 x0 = [30, 100, 100, 60, 200]  # G, I, C, M, H 
 
 #Injection
-inj = 2742
+inj = 7.3125E-07
 
 # Solve ODE-system qualitative
 first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(minimum[1], ))
 
 # Simulate the injection
-x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0]
+x2 = [first_sol_qual.y[0, -1], inj,  first_sol_qual.y[2, -1], first_sol_qual.y[3, -1], first_sol_qual.y[4, -1]]
 
 # Solve ODE-system after 20 miunutes with injection
 second_sol_qual = integrate.solve_ivp(open_loop, [20,tG_vec[-1]], x2, method = "Radau", args = (minimum[1], ))

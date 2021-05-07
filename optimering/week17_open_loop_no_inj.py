@@ -7,6 +7,9 @@ import math
 import pandas as pd
 import os
 import lhsmdu
+from tqdm import tqdm
+import copy
+import datetime
 
 # Colour-blind friendly palette (use nice colors)
 cb_palette1 = ["#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
@@ -37,26 +40,24 @@ def open_loop(t,x,b):
 
     #L= 5000 # Startvärde glukos i levern
 
-    # Scaling factor for units
-    scal_factor = 1e-9
 
     # Glucose plasma [1]
-    dG = k4*C + k1*H - k2*G*I*scal_factor
+    dG = k4*C + k1*H - k2*G*I
 
     # Insulin plasma [2]
-    dI = k3*G - k2*G*I*scal_factor
+    dI = k3*G - k2*G*I
 
     # GLucose liver [3]
-    dC = -k4*C + k6*E*scal_factor + k7*F 
+    dC = -k4*C + k6*E + k7*F 
 
     # Glucose musle [4]
-    dM = k2*G*I*scal_factor - k5*M
+    dM = k2*G*I - k5*M
 
     # Glucose intake [5]
     dH = -k1*H
 
     # Glucagon [6]
-    dE = k8 - k2*G*E*scal_factor 
+    dE = k8 - k2*G*E
 
     # Fettreserv [7]
     dF = -k7*F
@@ -65,10 +66,13 @@ def open_loop(t,x,b):
 
 
 def cost_function(b, yG_vec, yI_vec):
+    if(any(b <= 0)):
+        raise ValueError(f"{b}")
+
    # Calculates the target function for a model based on maximumlikelihood 
 
     # Start concentration, timespan   
-    x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
+    x0 = [30, 2.2e-8, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
     time_span_G = [tG_vec[0], tG_vec[-1]] 
     time_span_I = [tI_vec[0], tI_vec[-1]] 
 
@@ -98,13 +102,14 @@ def cost_function(b, yG_vec, yI_vec):
     squared_sum = 0.0
 
     range_G = [0, 500] # mM 
-    range_I = [0, 4000] #pM 
+    range_I = [0, 1.4e-6] #pM 
     range_C = [0, 1000] # mmol 
     range_M = [0, 1000] # mmol
     range_H = [0, 500] # mmol
     range_E = [0, 500] # mmol
     range_F = [0, 500] # mmol
 
+    penalty = 10000
 
     if any(G_model) > np.max(range_G):
        squared_sum += 100
@@ -137,21 +142,20 @@ def cost_function(b, yG_vec, yI_vec):
 
 
     # Calculate cost-function  
-    squared_sum = np.sum((yG_model - yG_vec))**2+np.sum((yI_model -  yI_vec)**2) 
+    squared_sum = np.sum((yG_model - yG_vec)**2)+np.sum((yI_model -  yI_vec)**2) 
 
     return squared_sum 
 
 ## Hypercube set up
 randSeed = 2 # random number of choice
 lhsmdu.setRandomSeed(randSeed) # Latin Hypercube Sampling with multi-dimensional uniformity
-
 start = np.array(lhsmdu.sample(8, 10)) # Latin Hypercube Sampling with multi-dimensional uniformity (parameters, samples)
 
 para, samples = start.shape
 
 ## intervals for the parameters
-para_int = [0, 500, 100, 50]
-
+para_int = [0, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
+#           0     1      2      3    4   5   6   7     8
 minimum = (np.inf, None)
 
 # Bounds for the model
@@ -161,8 +165,15 @@ bound_low = np.array([0, 0, 0, 0, 0, 0, 0, 0])
 bound_upp = np.repeat(np.inf, para)
 bounds = Bounds(bound_low, bound_upp)
 
+fig = plt.figure() 
 
-for n in range(samples):
+os.makedirs("logs17", exist_ok=True)
+filename = f"logs17/{datetime.datetime.utcnow()}.log"
+filename = filename.replace(" ","_")
+filename = filename.replace(":",".")
+
+for n in tqdm(range(samples)):
+
     k1 = start[0,n] * para_int[2]
     k2 = start[1,n] * para_int[2]
     k3 = start[2,n] * para_int[2]
@@ -172,16 +183,33 @@ for n in range(samples):
     k7 = start[6,n] * para_int[2]
     k8 = start[7,n] * para_int[2]
     
-    res = minimize(cost_function, [k1, k2, k3, k4, k5, k6, k7, k8], method='Powell', args = (cG_vec, cI_vec), bounds=bounds) #lägg in constraints här 
-
+    try:      
+        res = minimize(
+            fun = cost_function, 
+            x0 = [k1, k2, k3, k4, k5, k6, k7, k8], 
+            method ='Powell', 
+            args = (cG_vec, cI_vec), 
+            bounds = bounds,
+            tol = 0.1,
+            options = {'disp' : True},
+            ) #lägg in constraints här 
+    except ValueError as err:
+        msg = f"Start values: {[k1, k2, k3, k4, k5, k6, k7, k8]}\nLed to negative solution: {err}"
+        with open(filename, "a") as f:
+            f.writelines([f"Failed!\n", msg])
+        print(msg)
+        continue
 
     if res.fun < minimum[0]:
         minimum = (res.fun, res.x)
+    with open(filename, "a") as f:
+        f.writelines([f"Success!", f"Found solution: {res.x}"])
+
 
 # Hämta modellen
 # Start concentration, timespan   
 
-x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
+x0 = [30, 2.2e-8, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
 
 time_span_G = [tG_vec[0], tG_vec[-1]] 
 time_span_I = [tI_vec[0], tI_vec[-1]] 
@@ -205,6 +233,44 @@ print(minimum[1])
 print("Value of cost-function") 
 print(minimum[0]) 
 
+def sensitivity(b,t,x):
+   # Calcualte the sensitivity matrix using the optimal 
+    h = np.sqrt(np.finfo(float).eps) # Maskintoleransen, vår steglängd för finita differen 
+    b_par = len(b)
+    t_len = len(t)
+    # Sensitivity analysis for each time step
+    S = np.zeros([b_par, t_len * len(x)])
+    time_span = [t[0], t[-1]]
+
+    for n in range(len(b)):
+        b1 = b.copy() 
+        b2 = b.copy()  
+        b1[n] += h 
+        b2[n] -= h
+
+        Sol_high = integrate.solve_ivp(open_loop, time_span, x, method='LSODA', args=(b1, ), t_eval = t)
+        Sol_low = integrate.solve_ivp(open_loop, time_span, x, method='LSODA', args=(b2, ), t_eval= t)
+        
+        Sol_diff = (Sol_high.y-Sol_low.y)/(2*h)
+
+        S[n,:] = Sol_diff.reshape(t_len*len(x))
+
+    return S
+
+S = sensitivity(minimum[1], tG_vec , x0)
+
+# Fisher matrix to make the covariance matrix
+Fisher = 2 * S @ S.transpose()
+
+cov_mat = Fisher.transpose()
+
+# Identification of the parameters
+d_cov = np.diag(cov_mat)
+
+var_coeff = np.square(d_cov)/minimum[1]
+
+print('Identification for each parameters')
+print(var_coeff)
 
 ### ~~~~~~ Plot model, data, constrains and residual ~~~~~~~ ###
 
@@ -253,12 +319,7 @@ plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","L�
 plt.xlabel("tid (min)", fontsize=12), plt.ylabel("Glukos koncentration", fontsize=12)
 plt.title("Glukos i plasma")
 
-# # Residual plot for glucose
-# G_res = plt.subplot(122)
-# difference_G = cG_vec - G_model
-# plt.scatter(difference_G, G_model, s = 10 , color = cb_palette1[1])
 
-# Sparar figur i plot constrains, glukos
 # Write the result to file
 path_result_dir = "optimering/Bilder/plot_week17_no_inj_model"
 # Check if directory exists
@@ -280,10 +341,6 @@ plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","L�
 plt.xlabel("tid", fontsize=12), plt.ylabel("Insulin koncentration", fontsize=12)
 plt.title("Insulin i plasma")
 
-# # Residual plot for insulin
-# I_res = plt.subplot(122)
-# difference_I = cI_vec - I_model
-# plt.scatter(difference_I, I_model, s = 10 , color = cb_palette1[1])
 
 # Sparar figur i plot constrains, insulin
 # Write the result to file
