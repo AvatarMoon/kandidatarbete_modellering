@@ -142,7 +142,7 @@ def cost_function(b, yG_vec, yI_vec):
     squared_sum = 0.0
 
     range_G = [0, 500] # mM 
-    range_I = [0, 7.3125e-07*2] #mM 
+    range_I = [0, 1.42e-6] #mM 
     range_C = [0, 10000] # mmol 
     range_M = [0, 500] # mmol
     range_H = [0, 500] # mmol

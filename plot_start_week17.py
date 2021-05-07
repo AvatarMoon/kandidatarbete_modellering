@@ -62,13 +62,13 @@ def open_loop(t,x,b):
     dG = k4*C + k1*H - k2*G*I
 
     # Insulin plasma [2]
-    dI = k3*G - k2*I*G*scal_factor
+    dI = k3*G - k2*I*G
 
     # GLucose liver [3]
-    dC = -k4*C + k6*scal_factor*E + k7*F
+    dC = -k4*C + k6*E + k7*F
 
     # Glucose musle [4]
-    dM = k2*scal_factor*G*I - k5*M
+    dM = k2*G*I - k5*M
 
     # Glucose intake [5]
     dH = -k1*H
@@ -81,22 +81,23 @@ def open_loop(t,x,b):
 
     return [dG, dI, dC, dM, dH, dE, dF]
 
-b = [0.0119979 , 0.00333303, 0.00152618, 0.00234708, 0.00571778, 1.07024714, 0.00260788, 0.27374058]
-x0 = [30, 100, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
+b = [8.61427521e-03, 6.66882014e+00, 1.05062743e-01, 1.24674440e-03,7.56648356e+01, 1.69683442e+00, 2.31036879e-03, 1.54599080e+01]
+# Start concentration, timespan   
+x0 = [30, 2.8e-8, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
 time_span_G = [tG_vec[0], tG_vec[-1]] 
 time_span_I = [tI_vec[0], tI_vec[-1]] 
 
-#Injection
-inj = 2742
+# Injection
+inj = 7.3125E-07
 
 # Solve ODE-system qualitative
-first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="Radau", args=(b, ))
+first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="LSODA", args=(b, ))
 
 # Simulate the injection
-x2 = first_sol_qual.y[:, -1] + [0, inj, 0, 0, 0, 0, 0]
+x2 = [first_sol_qual.y[0, -1], inj,  first_sol_qual.y[2, -1], first_sol_qual.y[3, -1], first_sol_qual.y[4, -1], first_sol_qual.y[5, -1], first_sol_qual.y[6, -1]]
 
 # Solve ODE-system after 20 miunutes with injection
-second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "Radau", args = (b, ))
+second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "LSODA", args = (b, ))
 
 sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 1)
 time_span = np.concatenate([first_sol_qual.t, second_sol_qual.t])
@@ -109,6 +110,7 @@ H_model = sol_qual[4]
 E_model = sol_qual[5]
 F_model = sol_qual[6]
 
+
 # Time span
 xT_coordinates = [tG_vec[0],tG_vec[-1]]
 
@@ -118,7 +120,7 @@ yG2_coordinates = [50,50]   #mM (human)
 
 # Constrains insulin (I)
 yI1_coordinates = [0,0]   #pM (human)
-yI2_coordinates = [5000,5000] #pM (human)
+yI2_coordinates = [7.3125E-07*2,7.3125E-07*2] #pM (human)
  
  # Constrains glukos i lever (C) 
 yC1_coordinates = [0,0]  # mmol (human)
