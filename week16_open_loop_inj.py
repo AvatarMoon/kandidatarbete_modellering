@@ -18,6 +18,7 @@ cb_palette1 = ["#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 data_G = pd.read_csv ("data_horses/glukos_FF_training.csv", sep=';')
 data_I = pd.read_csv ("data_horses/insulin_FF_training.csv", sep=';')
 data_G = data_G.sort_values(by=['time'])
+
 data_I = data_I.sort_values(by=['time'])
 
 
@@ -57,19 +58,19 @@ def open_loop(t,x,b):
     L= 5000 # Startvärde glukos i levern
 
     # Scaling factor
-    scal_factor = 1e-9
+   # scal_factor = 1e-9
 
     # Glucose plasma [1]
-    dG = k4*C*I*scal_factor + k1*H - k2*G*I*scal_factor
+    dG = k4*C*I + k1*H - k2*G*I
 
     # Insulin plasma [2]
-    dI = k3*G - k2*G*I*scal_factor
+    dI = k3*G - k2*G*I
 
     # GLucose liver [3]
-    dC = -k4*C*I*scal_factor + L
+    dC = -k4*C*I + L
 
     # Glucose musle [4]
-    dM = k2*G*I*scal_factor - k5*M
+    dM = k2*G*I - k5*M
 
     # Glucose intake [5]
     dH = -k1*H
@@ -304,7 +305,7 @@ yG2_coordinates = [50,50]   #mM (human)
 
 # Constrains insulin (I)
 yI1_coordinates = [0,0]   #pM (human)
-yI2_coordinates = [4000,4000] #pM (human)
+yI2_coordinates = [5000,5000] #pM (human)
  
  # Constrains glukos i lever (C) 
 #yC1_coordinates = [0,0]  # mmol (human)
@@ -329,8 +330,8 @@ line2, = plt.plot(xT_coordinates, yG2_coordinates, linestyle=":", linewidth=lw, 
 line3, = plt.plot(data_G['time'].values, data_G['conc'].values, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, G_model, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc.[mM]", fontsize=15)
-plt.title("Glukos i plasma", fontsize=15)
+plt.xlabel("Time [min]", fontsize=12), plt.ylabel("Konc.[mM]", fontsize=12)
+plt.title("Glukos i plasma")
 
 # # Residual plot for glucose
 # G_res = plt.subplot(122)
@@ -355,9 +356,9 @@ line1, = plt.plot(xT_coordinates, yI1_coordinates, linestyle=":", linewidth=lw, 
 line2, = plt.plot(xT_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(data_I['time'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
-plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"), loc = 'right')
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [pM]", fontsize=15)
-plt.title("Insulin i plasma", fontsize=15)
+plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
+plt.xlabel("Time [min]", fontsize=12), plt.ylabel("Konc. [pM]", fontsize=12)
+plt.title("Insulin i plasma")
 
 # # Residual plot for insulin
 # I_res = plt.subplot(122)
@@ -380,8 +381,9 @@ plot1 = plt.figure(3)
 # line1, = plt.plot(xT_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 # line2, = plt.plot(xT_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, C_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
-plt.title("Glukos i levern", fontsize=15)
+plt.legend()
+plt.xlabel("Time [min]", fontsize=12), plt.ylabel("Konc. [mM]", fontsize=12)
+plt.title("Glukos i levern")
 
 # Sparar figur i plot constrains, glukos i levern
 # Write the result to file
@@ -399,8 +401,9 @@ plot1 = plt.figure(4)
 # line1, = plt.plot(xT_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 # line2, = plt.plot(xT_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, M_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
-plt.title("Glukos i muskeln", fontsize=15)
+plt.legend()
+plt.xlabel("Time [min]", fontsize=12), plt.ylabel("Konc. [mM]", fontsize=12)
+plt.title("Glukos i muskeln")
 
 
 # Sparar figur i plot constrains, glukos i muskeln
@@ -420,8 +423,9 @@ plot1 = plt.figure(5)
 # line1, = plt.plot(xT_coordinates, yH1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 # line2, = plt.plot(xT_coordinates, yH2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, H_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
-plt.title("Glukos intag", fontsize=15)
+plt.legend()
+plt.xlabel("Time [min]", fontsize=12), plt.ylabel("Konc. [mM]", fontsize=12)
+plt.title("Glukos intag")
 
 
 # Sparar figur i plot constrains, glukos i muskeln
