@@ -222,7 +222,7 @@ for n in tqdm(range(samples)):
 
 # Hämta modellen
 # Start concentration, timespan   
-x0 = [30, 100, 100, 60, 200]  # G, I, C, M, H 
+x0 = [30, 2.2e-8, 100, 60, 200]  # G, I, C, M, H 
 
 #Injection
 inj = 7.3125E-07
@@ -357,7 +357,7 @@ line2, = plt.plot(xT_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, 
 line3, = plt.plot(data_I['time'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
-plt.xlabel("Tid [min]", fontsize=12), plt.ylabel("Konc. [pM]", fontsize=12)
+plt.xlabel("Tid [min]", fontsize=12), plt.ylabel("Konc. [mM]", fontsize=12)
 plt.title("Insulin i plasma")
 
 # # Residual plot for insulin

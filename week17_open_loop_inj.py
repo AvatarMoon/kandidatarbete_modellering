@@ -366,7 +366,7 @@ line2, = plt.plot(xT_coordinates, yG2_coordinates, linestyle=":", linewidth=lw, 
 line3, = plt.plot(data_G['time'].values, data_G['conc'].values, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, G_model, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc.[mM]", fontsize=15)
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc.[mM]", fontsize=15)
 plt.title("Glucose in plasma", fontsize=15)
 
 # # Residual plot for glucose
@@ -393,7 +393,7 @@ line2, = plt.plot(xT_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, 
 line3, = plt.plot(data_I['time'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
 plt.title("Insulin i plasman", fontsize=15)
 
 # # Residual plot for insulin
@@ -417,7 +417,7 @@ plot1 = plt.figure(3)
 # line1, = plt.plot(xT_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 # line2, = plt.plot(xT_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, C_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
 plt.title("Glukos i levern", fontsize=15)
 
 # Sparar figur i plot constrains, glukos i levern
@@ -436,7 +436,7 @@ plot1 = plt.figure(4)
 # line1, = plt.plot(xT_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 # line2, = plt.plot(xT_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, M_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
 plt.title("Glukos i muskeln", fontsize=15)
 
 
@@ -457,7 +457,7 @@ plot1 = plt.figure(5)
 # line1, = plt.plot(xT_coordinates, yH1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 # line2, = plt.plot(xT_coordinates, yH2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, H_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
 plt.title("Glukos intag", fontsize=15)
 
 
@@ -477,7 +477,7 @@ plot1 = plt.figure(6)
 # line1, = plt.plot(xT_coordinates, yE1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 # line2, = plt.plot(xT_coordinates, yE2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, E_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
 plt.title("Glukagon i plasma", fontsize=15)
 
 
@@ -497,7 +497,7 @@ plot1 = plt.figure(7)
 # line1, = plt.plot(xT_coordinates, yF1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
 # line2, = plt.plot(xT_coordinates, yF2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, F_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
-plt.xlabel("Time [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
 plt.title("Fettreserver", fontsize=15)
 
 
