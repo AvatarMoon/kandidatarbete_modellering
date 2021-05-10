@@ -132,37 +132,37 @@ def cost_function(b, yG_vec, yI_vec):
     squared_sum = 0.0
 
     range_G = [0, 500] # mM 
-    range_I = [0, 1.4e-6] #pM 
+    range_I = [0, 1.4e-8] #pM 
     range_C = [0, 10000] # mmol 
     range_M = [0, 500] # mmol
     range_H = [0, 500] # mmol
 
     penalty = 10000
 
-    if any(G_model) > np.max(range_G):
+    if any(G_model > np.max(range_G)):
        squared_sum += penalty
-    if any(G_model) < np.min(range_G):
+    if any(G_model < np.min(range_G)):
        squared_sum += penalty
-    if any(I_model) > np.max(range_I):
+    if any(I_model > np.max(range_I)):
        squared_sum += penalty
-    if any(I_model) < np.min(range_I):
+    if any(I_model < np.min(range_I)):
        squared_sum += penalty
-    if any(C_model) > np.max(range_C):
+    if any(C_model > np.max(range_C)):
        squared_sum += penalty
-    if any(C_model) < np.min(range_C):
+    if any(C_model < np.min(range_C)):
        squared_sum += penalty
-    if any(M_model) > np.max(range_M):
+    if any(M_model > np.max(range_M)):
        squared_sum += penalty
-    if any(M_model) < np.min(range_M):
+    if any(M_model < np.min(range_M)):
        squared_sum += penalty
-    if any(H_model) > np.max(range_H):
+    if any(H_model > np.max(range_H)):
        squared_sum += penalty
-    if any(H_model) < np.min(range_H):
+    if any(H_model < np.min(range_H)):
        squared_sum += penalty
     
 
     # Calculate cost-function  
-    squared_sum = np.sum((yG_model - yG_vec)**2) +np.sum((yI_model -  yI_vec)**2)
+    squared_sum += np.sum((yG_model - yG_vec)**2) + np.sum((yI_model -  yI_vec)**2) 
 
     return squared_sum 
 
@@ -222,7 +222,7 @@ for n in tqdm(range(samples)):
 
 # Hämta modellen
 # Start concentration, timespan   
-x0 = [30, 100, 100, 60, 200]  # G, I, C, M, H 
+x0 = [30, 2.2e-8, 100, 60, 200]  # G, I, C, M, H 
 
 #Injection
 inj = 7.3125E-07
@@ -305,7 +305,7 @@ yG2_coordinates = [50,50]   #mM (human)
 
 # Constrains insulin (I)
 yI1_coordinates = [0,0]   #pM (human)
-yI2_coordinates = [5000,5000] #pM (human)
+yI2_coordinates = [1.4e-7, 1.4e-7] #pM (human)
  
  # Constrains glukos i lever (C) 
 #yC1_coordinates = [0,0]  # mmol (human)
