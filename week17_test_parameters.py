@@ -142,7 +142,7 @@ def cost_function(b, yG_vec, yI_vec):
     squared_sum = 0.0
 
     range_G = [0, 500] # mM 
-    range_I = [0, 7.3125e-07*2] #mM 
+    range_I = [0, 1.42e-6] #mM 
     range_C = [0, 10000] # mmol 
     range_M = [0, 500] # mmol
     range_H = [0, 500] # mmol
@@ -237,3 +237,218 @@ for n in tqdm(range(n_samples)):
 # print(minimal_sphere)
 print("Minimal costfunction and its parameters Log")
 print(minimum_log)
+
+# Start concentration, timespan   
+x0 = [30, 2.8e-8, 34, 60, 70, 50, 400]  # G, I, C, M, H, E, F 
+time_span_G = [tG_vec[0], tG_vec[-1]] 
+time_span_I = [tI_vec[0], tI_vec[-1]] 
+
+# Injection
+inj = 7.3125E-07
+
+# Solve ODE-system qualitative
+first_sol_qual = integrate.solve_ivp(open_loop, [0,20], x0, method="LSODA", args=(minimum_log[1], ))
+
+# Simulate the injection
+x2 = [first_sol_qual.y[0, -1], inj,  first_sol_qual.y[2, -1], first_sol_qual.y[3, -1], first_sol_qual.y[4, -1], first_sol_qual.y[5, -1], first_sol_qual.y[6, -1]]
+
+# Solve ODE-system after 20 miunutes with injection
+second_sol_qual = integrate.solve_ivp(open_loop, [20,240], x2, method = "LSODA", args = (minimum_log[1], ))
+
+sol_qual = np.concatenate([first_sol_qual.y, second_sol_qual.y], axis = 1)
+time_span = np.concatenate([first_sol_qual.t, second_sol_qual.t])
+
+G_model = sol_qual[0]
+I_model = sol_qual[1]
+C_model = sol_qual[2]
+M_model = sol_qual[3]
+H_model = sol_qual[4]
+E_model = sol_qual[5]
+F_model = sol_qual[6]
+
+
+# Time span
+xT_coordinates = [tG_vec[0],tG_vec[-1]]
+
+# Constrains glukos (G)
+yG1_coordinates = [0,0] #mM (human)
+yG2_coordinates = [50,50]   #mM (human)
+
+# Constrains insulin (I)
+yI1_coordinates = [0,0]   #pM (human)
+yI2_coordinates = [7.3125E-07*2,7.3125E-07*2] #pM (human)
+ 
+ # Constrains glukos i lever (C) 
+yC1_coordinates = [0,0]  # mmol (human)
+yC2_coordinates = [100,100]  # mmol (human)
+
+ # Constrains glukos i muskel (M) 
+yM1_coordinates = [0,0]    # mmol (human)
+yM2_coordinates = [140,140]  # mmol (human)
+
+ # Constrains glucose intake (H)
+yH1_coordinates = [0,0]    
+yH2_coordinates = [500,500]  
+
+ # Constrains glucagon in plasma (E)
+yE1_coordinates = [0,0]    
+yE2_coordinates = [500,500] 
+
+ # Constrains glucagon in plasma (E)
+yF1_coordinates = [0,0]    
+yF2_coordinates = [500,500] 
+
+
+# plotta glukos
+lw = 2.0
+plot1 = plt.figure(1)
+# G_plot = plt.subplot(121)
+line1, = plt.plot(xT_coordinates, yG1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yG2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(data_G['time'].values, data_G['conc'].values, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[7])
+line4, = plt.plot(time_span, G_model, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[5])
+plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc.[mM]", fontsize=15)
+plt.title("Glucose in plasma", fontsize=15)
+
+# # Residual plot for glucose
+# G_res = plt.subplot(122)
+# difference_G = cG_vec - G_model
+# plt.scatter(difference_G, G_model, s = 10 , color = cb_palette1[1])
+
+# Sparar figur i plot constrains, glukos
+# Write the result to file
+path_result_dir = "optimering/Bilder/test_plot_week17"
+# Check if directory exists
+if not os.path.isdir(path_result_dir):
+    os.makedirs(path_result_dir, exist_ok=True)  # Create a new directory if not existing
+path_fig = path_result_dir + "/no_op_plot_glucose.pdf"
+print("path_fig = {}".format(path_fig))
+plt.savefig(path_fig)
+
+# plotta insulin
+lw = 2.0
+plot1 = plt.figure(2)
+# I_plot = plt.subfig(121)
+line1, = plt.plot(xT_coordinates, yI1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+line2, = plt.plot(xT_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(data_I['time'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[7])
+line4, = plt.plot(time_span, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
+plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.title("Insulin i plasman", fontsize=15)
+
+# # Residual plot for insulin
+# I_res = plt.subplot(122)
+# difference_I = cI_vec - I_model
+# plt.scatter(difference_I, I_model, s = 10 , color = cb_palette1[1])
+
+# Sparar figur i plot constrains, insulin
+# Write the result to file
+path_result_dir = "optimering/Bilder/test_plot_week17"
+# Check if directory exists
+if not os.path.isdir(path_result_dir):
+    os.mkdir(path_result_dir)  # Create a new directory if not existing
+path_fig = path_result_dir + "/no_op_plot_insulin.pdf"
+print("path_fig = {}".format(path_fig))
+plt.savefig(path_fig)
+
+# plotta Glukos i lever 
+lw = 2.0
+plot1 = plt.figure(3)
+# line1, = plt.plot(xT_coordinates, yC1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+# line2, = plt.plot(xT_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, C_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.title("Glukos i levern", fontsize=15)
+
+# Sparar figur i plot constrains, glukos i levern
+# Write the result to file
+path_result_dir = "optimering/Bilder/test_plot_week17"
+# Check if directory exists
+if not os.path.isdir(path_result_dir):
+    os.mkdir(path_result_dir)  # Create a new directory if not existing
+path_fig = path_result_dir + "/no_op_plot_glukoslevern.pdf"
+print("path_fig = {}".format(path_fig))
+plt.savefig(path_fig)
+
+# plotta Glukos i muskeln 
+lw = 2.0
+plot1 = plt.figure(4)
+# line1, = plt.plot(xT_coordinates, yM1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+# line2, = plt.plot(xT_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, M_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.title("Glukos i muskeln", fontsize=15)
+
+
+# Sparar figur i plot constrains, glukos i muskeln
+# Write the result to file
+path_result_dir = "optimering/Bilder/test_plot_week17"
+# Check if directory exists
+if not os.path.isdir(path_result_dir):
+    os.mkdir(path_result_dir)  # Create a new directory if not existing
+path_fig = path_result_dir + "/no_op_plot_glukosmuskeln.pdf"
+print("path_fig = {}".format(path_fig))
+plt.savefig(path_fig)
+
+
+# plotta Glukos inktake 
+lw = 2.0
+plot1 = plt.figure(5)
+# line1, = plt.plot(xT_coordinates, yH1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+# line2, = plt.plot(xT_coordinates, yH2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, H_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.title("Glukos intag", fontsize=15)
+
+
+# Sparar figur i plot constrains, glukos i muskeln
+# Write the result to file
+path_result_dir = "optimering/Bilder/test_plot_week17"
+# Check if directory exists
+if not os.path.isdir(path_result_dir):
+    os.mkdir(path_result_dir)  # Create a new directory if not existing
+path_fig = path_result_dir + "/no_op_plot_glukos_intag.pdf"
+print("path_fig = {}".format(path_fig))
+plt.savefig(path_fig)
+
+# plotta Glucagon in plasma
+lw = 2.0
+plot1 = plt.figure(6)
+# line1, = plt.plot(xT_coordinates, yE1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+# line2, = plt.plot(xT_coordinates, yE2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, E_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.title("Glukagon i plasma", fontsize=15)
+
+
+# Sparar figur i plot constrains, glukos i muskeln
+# Write the result to file
+path_result_dir = "optimering/Bilder/test_plot_week17"
+# Check if directory exists
+if not os.path.isdir(path_result_dir):
+    os.mkdir(path_result_dir)  # Create a new directory if not existing
+path_fig = path_result_dir + "/no_op_plot_glucagon_plasma.pdf"
+print("path_fig = {}".format(path_fig))
+plt.savefig(path_fig)
+
+# plotta Fettreserve 
+lw = 2.0
+plot1 = plt.figure(7)
+# line1, = plt.plot(xT_coordinates, yF1_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[1])
+# line2, = plt.plot(xT_coordinates, yF2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
+line3, = plt.plot(time_span, F_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.title("Fettreserver", fontsize=15)
+
+
+# Sparar figur i plot constrains, glukos i muskeln
+# Write the result to file
+path_result_dir = "optimering/Bilder/test_plot_week17"
+# Check if directory exists
+if not os.path.isdir(path_result_dir):
+    os.mkdir(path_result_dir)  # Create a new directory if not existing
+path_fig = path_result_dir + "/no_op_plot_fettreserve.pdf"
+print("path_fig = {}".format(path_fig))
+plt.savefig(path_fig)
