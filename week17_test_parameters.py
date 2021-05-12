@@ -278,25 +278,6 @@ yG2_coordinates = [50,50]   #mM (human)
 yI1_coordinates = [0,0]   #pM (human)
 yI2_coordinates = [7.3125E-07*2,7.3125E-07*2] #pM (human)
  
- # Constrains glukos i lever (C) 
-yC1_coordinates = [0,0]  # mmol (human)
-yC2_coordinates = [100,100]  # mmol (human)
-
- # Constrains glukos i muskel (M) 
-yM1_coordinates = [0,0]    # mmol (human)
-yM2_coordinates = [140,140]  # mmol (human)
-
- # Constrains glucose intake (H)
-yH1_coordinates = [0,0]    
-yH2_coordinates = [500,500]  
-
- # Constrains glucagon in plasma (E)
-yE1_coordinates = [0,0]    
-yE2_coordinates = [500,500] 
-
- # Constrains glucagon in plasma (E)
-yF1_coordinates = [0,0]    
-yF2_coordinates = [500,500] 
 
 
 # plotta glukos

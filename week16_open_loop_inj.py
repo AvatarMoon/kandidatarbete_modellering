@@ -193,9 +193,9 @@ filename = filename.replace(":",".")
 for n in tqdm(range(samples)):
     
     k1 = start[0,n] * para_int[3]
-    k2 = start[1,n] * para_int[5]
-    k3 = start[2,n] * para_int[3]
-    k4 = start[3,n] * para_int[3]
+    k2 = start[1,n] * para_int[7]
+    k3 = start[2,n] * para_int[6]
+    k4 = start[3,n] * para_int[2]
     k5 = start[4,n] * para_int[3]
 
     try:
