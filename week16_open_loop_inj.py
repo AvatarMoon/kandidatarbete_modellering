@@ -139,25 +139,25 @@ def cost_function(b, yG_vec, yI_vec):
 
     penalty = 10000
 
-    if any(G_model) > np.max(range_G):
+    if any(G_model > np.max(range_G)):
        squared_sum += penalty
-    if any(G_model) < np.min(range_G):
+    if any(G_model < np.min(range_G)):
        squared_sum += penalty
-    if any(I_model) > np.max(range_I):
+    if any(I_model > np.max(range_I)):
        squared_sum += penalty
-    if any(I_model) < np.min(range_I):
+    if any(I_model < np.min(range_I)):
        squared_sum += penalty
-    if any(C_model) > np.max(range_C):
+    if any(C_model > np.max(range_C)):
        squared_sum += penalty
-    if any(C_model) < np.min(range_C):
+    if any(C_model < np.min(range_C)):
        squared_sum += penalty
-    if any(M_model) > np.max(range_M):
+    if any(M_model > np.max(range_M)):
        squared_sum += penalty
-    if any(M_model) < np.min(range_M):
+    if any(M_model < np.min(range_M)):
        squared_sum += penalty
-    if any(H_model) > np.max(range_H):
+    if any(H_model > np.max(range_H)):
        squared_sum += penalty
-    if any(H_model) < np.min(range_H):
+    if any(H_model < np.min(range_H)):
        squared_sum += penalty
     
 
