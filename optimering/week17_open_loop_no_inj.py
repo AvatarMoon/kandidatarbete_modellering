@@ -111,40 +111,41 @@ def cost_function(b, yG_vec, yI_vec):
 
     penalty = 10000
 
-    if any(G_model) > np.max(range_G):
-       squared_sum += 100
-    if any(G_model) < np.min(range_G):
-       squared_sum += 100
-    if any(I_model) > np.max(range_I):
-       squared_sum += 100
-    if any(I_model) < np.min(range_I):
-       squared_sum += 100
-    if any(C_model) > np.max(range_C):
-       squared_sum += 100
-    if any(C_model) < np.min(range_C):
-       squared_sum += 100
-    if any(M_model) > np.max(range_M):
-       squared_sum += 100
-    if any(M_model) < np.min(range_M):
-       squared_sum += 100
-    if any(H_model) > np.max(range_H):
-       squared_sum += 100
-    if any(H_model) < np.min(range_H):
-        squared_sum += 100
-    if any(E_model) > np.max(range_E):
-       squared_sum += 100
-    if any(E_model) < np.min(range_E):
-        squared_sum += 100
-    if any(F_model) > np.max(range_F):
-       squared_sum += 100
-    if any(F_model) < np.min(range_F):
-        squared_sum += 100
-
+    if any(G_model > np.max(range_G)):
+       squared_sum += penalty
+    if any(G_model < np.min(range_G)):
+       squared_sum += penalty
+    if any(I_model > np.max(range_I)):
+       squared_sum += penalty
+    if any(I_model < np.min(range_I)):
+       squared_sum += penalty
+    if any(C_model > np.max(range_C)):
+       squared_sum += penalty
+    if any(C_model < np.min(range_C)):
+       squared_sum += penalty
+    if any(M_model > np.max(range_M)):
+       squared_sum += penalty
+    if any(M_model < np.min(range_M)):
+       squared_sum += penalty
+    if any(H_model > np.max(range_H)):
+       squared_sum += penalty
+    if any(H_model < np.min(range_H)):
+       squared_sum += penalty
+    if any(E_model > np.max(range_E)):
+       squared_sum += penalty
+    if any(E_model < np.min(range_E)):
+       squared_sum += penalty
+    if any(F_model > np.max(range_F)):
+       squared_sum += penalty
+    if any(F_model < np.min(range_F)):
+       squared_sum += penalty
+    
 
     # Calculate cost-function  
-    squared_sum = np.sum((yG_model - yG_vec)**2)+np.sum((yI_model -  yI_vec)**2) 
+    squared_sum += np.sum((yG_model - yG_vec)**2) + np.sum((yI_model -  yI_vec)**2) 
 
     return squared_sum 
+
 
 ## Hypercube set up
 randSeed = 2 # random number of choice

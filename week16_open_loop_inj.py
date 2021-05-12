@@ -132,7 +132,7 @@ def cost_function(b, yG_vec, yI_vec):
     squared_sum = 0.0
 
     range_G = [0, 500] # mM 
-    range_I = [0, 1.4e-6] #pM 
+    range_I = [0, 1.4e-8] #pM 
     range_C = [0, 10000] # mmol 
     range_M = [0, 500] # mmol
     range_H = [0, 500] # mmol
@@ -162,7 +162,7 @@ def cost_function(b, yG_vec, yI_vec):
     
 
     # Calculate cost-function  
-    squared_sum = np.sum((yG_model - yG_vec)**2) +np.sum((yI_model -  yI_vec)**2)
+    squared_sum += np.sum((yG_model - yG_vec)**2) + np.sum((yI_model -  yI_vec)**2) 
 
     return squared_sum 
 
@@ -305,8 +305,8 @@ yG2_coordinates = [50,50]   #mM (human)
 
 # Constrains insulin (I)
 yI1_coordinates = [0,0]   #pM (human)
-yI2_coordinates = [1.42e-6,1.42e-6] #pM (human)
- 
+yI2_coordinates = [1.4e-7, 1.4e-7] #pM (human)
+
  # Constrains glukos i lever (C) 
 #yC1_coordinates = [0,0]  # mmol (human)
 #yC2_coordinates = [100,100]  # mmol (human)
@@ -330,8 +330,8 @@ line2, = plt.plot(xT_coordinates, yG2_coordinates, linestyle=":", linewidth=lw, 
 line3, = plt.plot(data_G['time'].values, data_G['conc'].values, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, G_model, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
-plt.xlabel("Tid [min]", fontsize=12), plt.ylabel("Konc.[mM]", fontsize=12)
-plt.title("Glukos i plasma")
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc.[mM]", fontsize=15)
+plt.title("Glukos i plasma", fontsize = 15)
 
 # # Residual plot for glucose
 # G_res = plt.subplot(122)
@@ -357,8 +357,8 @@ line2, = plt.plot(xT_coordinates, yI2_coordinates, linestyle=":", linewidth=lw, 
 line3, = plt.plot(data_I['time'].values, data_I['conc'].values, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[7])
 line4, = plt.plot(time_span, I_model, label = 'Insulin', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
-plt.xlabel("Tid [min]", fontsize=12), plt.ylabel("Konc. [mM]", fontsize=12)
-plt.title("Insulin i plasma")
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.title("Insulin i plasma", fontsize = 15)
 
 # # Residual plot for insulin
 # I_res = plt.subplot(122)
@@ -382,8 +382,8 @@ plot1 = plt.figure(3)
 # line2, = plt.plot(xT_coordinates, yC2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, C_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
 plt.legend()
-plt.xlabel("Tid [min]", fontsize=12), plt.ylabel("Konc. [mM]", fontsize=12)
-plt.title("Glukos i levern")
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.title("Glukos i levern", fontsize = 15)
 
 # Sparar figur i plot constrains, glukos i levern
 # Write the result to file
@@ -402,8 +402,8 @@ plot1 = plt.figure(4)
 # line2, = plt.plot(xT_coordinates, yM2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, M_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
 plt.legend()
-plt.xlabel("Tid [min]", fontsize=12), plt.ylabel("Konc. [mM]", fontsize=12)
-plt.title("Glukos i muskeln")
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.title("Glukos i muskeln", fontsize = 15)
 
 
 # Sparar figur i plot constrains, glukos i muskeln
@@ -424,8 +424,8 @@ plot1 = plt.figure(5)
 # line2, = plt.plot(xT_coordinates, yH2_coordinates, linestyle=":", linewidth=lw, color=cb_palette1[3])
 line3, = plt.plot(time_span, H_model, label = 'Modell', linestyle="-", linewidth=lw, color=cb_palette1[5]) # Lägga till modellen
 plt.legend()
-plt.xlabel("Tid [min]", fontsize=12), plt.ylabel("Konc. [mM]", fontsize=12)
-plt.title("Glukos intag")
+plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc. [mM]", fontsize=15)
+plt.title("Glukos intag", fontsize = 15)
 
 
 # Sparar figur i plot constrains, glukos i muskeln
