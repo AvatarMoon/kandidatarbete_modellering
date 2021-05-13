@@ -131,11 +131,11 @@ def cost_function(b, yG_vec, yI_vec):
     # Build bounds for the concentrations and punnish the cost-func. if it cross the bounds
     squared_sum = 0.0
 
-    range_G = [0, 500] # mM 
+    range_G = [0, 100] # mM 
     range_I = [0, 1.4e-8] #pM 
-    range_C = [0, 10000] # mmol 
-    range_M = [0, 500] # mmol
-    range_H = [0, 500] # mmol
+    range_C = [0, 200] # mmol 
+    range_M = [0, 120] # mmol
+    range_H = [0, 200] # mmol
 
     penalty = 10000
 
