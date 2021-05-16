@@ -59,11 +59,11 @@ plt.savefig(path_fig)
 
 ## ~~~ Plot random vs hypercube
 
-l = lhsmdu.sample(2,20) # Latin Hypercube Sampling of two variables, and 10 samples each.
-k = lhsmdu.createRandomStandardUniformMatrix(2,20) # Monte Carlo Sampling
+l = lhsmdu.sample(2,40) # Latin Hypercube Sampling of two variables, and 10 samples each.
+k = lhsmdu.createRandomStandardUniformMatrix(2,40) # Monte Carlo Sampling
 
 
-fig1 = plt.figure(1)
+fig1 = plt.figure(3)
 plt.scatter([k[0]], [k[1]], color=cb_palette1[0])
 plt.title("Likformig slumpad sampling", fontsize = '15')
 
@@ -76,7 +76,7 @@ path_fig = path_result_dir + "/random.pdf"
 print("path_fig = {}".format(path_fig))
 plt.savefig(path_fig)
 
-fig2 = plt.figure(2)
+fig2 = plt.figure(4)
 plt.scatter([l[0]], [l[1]], color=cb_palette1[5])
 plt.title("LHS", fontsize = '15')
 
