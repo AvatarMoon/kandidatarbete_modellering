@@ -299,7 +299,7 @@ plt.title("Glucose in plasma", fontsize=15)
 
 # Sparar figur i plot constrains, glukos
 # Write the result to file
-path_result_dir = "optimering/Bilder/test_plot_week17"
+path_result_dir = "Modeller/Bilder/no_op_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.makedirs(path_result_dir, exist_ok=True)  # Create a new directory if not existing
@@ -326,7 +326,7 @@ plt.title("Insulin i plasman", fontsize=15)
 
 # Sparar figur i plot constrains, insulin
 # Write the result to file
-path_result_dir = "optimering/Bilder/test_plot_week17"
+path_result_dir = "Modeller/Bilder/no_op_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -345,7 +345,7 @@ plt.title("Glukos i levern", fontsize=15)
 
 # Sparar figur i plot constrains, glukos i levern
 # Write the result to file
-path_result_dir = "optimering/Bilder/test_plot_week17"
+path_result_dir = "Modeller/Bilder/no_op_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -365,7 +365,7 @@ plt.title("Glukos i muskeln", fontsize=15)
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/test_plot_week17"
+path_result_dir = "Modeller/Bilder/no_op_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -386,7 +386,7 @@ plt.title("Glukos intag", fontsize=15)
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/test_plot_week17"
+path_result_dir = "Modeller/Bilder/no_op_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -406,7 +406,7 @@ plt.title("Glukagon i plasma", fontsize=15)
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/test_plot_week17"
+path_result_dir = "Modeller/Bilder/no_op_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
@@ -426,7 +426,7 @@ plt.title("Fettreserver", fontsize=15)
 
 # Sparar figur i plot constrains, glukos i muskeln
 # Write the result to file
-path_result_dir = "optimering/Bilder/test_plot_week17"
+path_result_dir = "Modeller/Bilder/no_op_plot_week17"
 # Check if directory exists
 if not os.path.isdir(path_result_dir):
     os.mkdir(path_result_dir)  # Create a new directory if not existing
