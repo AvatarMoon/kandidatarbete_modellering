@@ -367,7 +367,7 @@ line3, = plt.plot(data_G['time'].values, data_G['conc'].values, label = 'Glukos'
 line4, = plt.plot(time_span, G_model, label = 'Glukos', linestyle="-", linewidth=lw, color=cb_palette1[5])
 plt.legend((line4, line3, line2, line1), ("Modell", "Data", "Högsta gräns","Lägsta gräns"))
 plt.xlabel("Tid [min]", fontsize=15), plt.ylabel("Konc.[mM]", fontsize=15)
-plt.title("Glucose in plasma", fontsize=15)
+plt.title("Glukos i plasman", fontsize=15)
 
 # # Residual plot for glucose
 # G_res = plt.subplot(122)

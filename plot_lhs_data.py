@@ -64,7 +64,7 @@ l = lhsmdu.sample(2,50) # Latin Hypercube Sampling of two variables, and 10 samp
 k = lhsmdu.createRandomStandardUniformMatrix(2,50) # Monte Carlo Sampling
 
 for i in range(1,50//5+1):
-    ## Hypercube set up
+    ## Hypercube set upgit
 
     fig1 = plt.figure()
     plt.axis([0, 1, 0, 1])
